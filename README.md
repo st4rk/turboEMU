@@ -7,5 +7,5 @@ The emulator is under development and has many bugs and incomplete features, for
 
 This projected is licensed under the terms of the MIT license.
 
-=== Thanks ===
+-- Thanks --
 * EMU-DOCS: http://emu-docs.org/PC%20Engine/pce_doc/
