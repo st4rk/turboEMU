@@ -30,6 +30,9 @@
 // ≃ 114 which is the total of cycles per scanline
 #define MAX_TICKET 114
 
+
+#define TIMER_CLOCK 1024
+
 class HuC6280 {
 public:
 	HuC6280();
@@ -159,6 +162,9 @@ public:
    void executeCPU();
 private:
 	// CPU Registers
+    unsigned char timer;
+    unsigned short timerCycles;
+
 	 unsigned char speedMode;
     unsigned char x;
     unsigned char y;

@@ -1,0 +1,15 @@
+
+-> On block transfer instruction, the $0000 is to transfer 64kb, not zero.
+
+-> Need to finish the speed mode.
+
+-> Need to finish the instructions which change when the t-flag is set.
+
+-> On power-up the CPU is ALWAYS in low speed mode.
+
+-> number of cycles used by CSH/CSL, the only documentation which explain about it is: http://cgfm2.emuviews.com/txt/pcetech.txt
+However it was tested afer the CPU already with their respective clock speed.
+
+-> IRQ2 is used by BRK, IRQ1 is connected to VDC
+
+-> Need to finish the Timer Vector

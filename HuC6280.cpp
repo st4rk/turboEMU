@@ -333,8 +333,9 @@ void HuC6280::cpx() {
 	if (addrReg & FLAG_SIGN) SET_FLAG(flag, FLAG_SIGN); else SET_FLAG(flag, FLAG_SIGN);
 }
 
-// TODO: Look for the number of cycles of these instructions
-// on the emu-docs "pce-cpu.html" is unknown the number of cycles
+// on this documentation: http://cgfm2.emuviews.com/txt/pcetech.txt
+// Is told which the CSH/CSL take 3 cycles each, however
+// "but that was tested with the CPU already set to the respective clock speed"
 void HuC6280::csh() {
 	speedMode = SPEED_MODE_HIGH;
 }
@@ -1299,17 +1300,14 @@ void HuC6280::executeCPU() {
 				t_cycles += 5;
 			break;
 
-			// TODO: Number of cycles to these instructions
-			// On the documentation which I Am reading(http://emu-docs.org/PC%20Engine/pce_doc/pce_cpu.html) only
-			// has ?? on the cycles, maybe it doesn't care ? :|
 			case 0xD4:
 				csh();
-				t_cycles += 2;
+				t_cycles += 3;
 			break;
 
 			case 0x54:
 				csl();
-				t_cycles += 2;
+				t_cycles += 3;
 			break;
 
 			case 0xC9:
@@ -2273,6 +2271,30 @@ void HuC6280::executeCPU() {
 			break;
 		}
 	}	
+
+
+
+	// The HuC6280 has a 7-bit timer.
+	// That is decremented one every 1024 clock cycles
+	// At the end of each tick, we will add timerCycles += t_cycles
+	// and verify if it is greater than or equal 1024, if yes
+	// decrement 1 on the timer and clear timerCycles
+	// http://cgfm2.emuviews.com/txt/pcetech.txt 
+	// 2.2) Timer
+	// TODO: Finish the timer vector
+
+	if ((memory.isTimerEnable()) && (timer == 0)) {
+		timerCycles = 0;
+		timer = memory.getTimerStart();
+	}
+
+	if ((memory.isTimerEnable())) {
+		timerCycles += t_cycles;
+
+		if (timerCycles > TIMER_CLOCK) {
+			timerCycles -= MAX_TICKET;
+		}
+	}
 }
 
 

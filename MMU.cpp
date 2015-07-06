@@ -47,16 +47,17 @@ unsigned char MMU::readMemory(unsigned short addr) {
 	// IO RAM
 
 	if (MPR == 0xFF) {
-		return io_ram[(addr & 0xFFFF)];
+		
 	}
 
 	std::cout << "Invalid MPR  ? Value: " << MPR << std::endl;
 	return 0xFF;
 }
 
-unsigned char MMU::readMPRi(unsigned char n) {
-	return (mpr[n]);
-}
+unsigned char MMU::readMPRi(unsigned char n) { return (mpr[n]); }
+
+
+unsigned char MMU::getTimerStart() { return timerStart; }
 
 void MMU::writeMemory(unsigned short addr, unsigned char data) {
 	unsigned char MPR = mpr[((addr >> 13) & 0xFF)];
@@ -80,14 +81,51 @@ void MMU::writeMemory(unsigned short addr, unsigned char data) {
 	// IO RAM
 
 	if (MPR == 0xFF) {
-		io_ram[(addr & 0xFFFF)] = data;
+		writeIO((addr & 0x1FFF), data);
 	}
 
 }
 
 
 void MMU::writeIO(unsigned short addr, unsigned char data) {
-	io_ram[addr] = data;
+
+	// HuC6270 Ports /CE7
+	if ((addr >= 0x0) && (addr <= 0x3FF)) {
+
+	}
+
+	// HuC6260 Ports /CEK
+	if ((addr >= 0x400) && (addr <= 0x7FF)) {
+
+	}
+
+	// PSG Ports /CEP
+	if ((addr >= 0x800) && (addr <= 0xBFF)) {
+
+	}
+
+	// Timer /CET
+	if ((addr >= 0xC00) && (addr <= 0xFFF)) {
+		// is only used the bits 0 ~ 6
+		if (addr == 0x0C00)
+			timerStart = (data & 0x7F) + 1;
+
+		// only bit 0 is used ! 
+		if (addr == 0x0C01)
+			timerEnable = (data & 0x1);
+	}
+
+	// I/O Ports /CEIO
+	if ((addr >= 0x1000) && (addr <= 0x13FF)) {
+
+	}
+
+	// Interrupt Request / Disable Registers /CECG
+	if ((addr >= 0x1400) && (addr <= 0x17FF)) {
+
+	}
+
+	// Beyond it is reserverd for expansion.
 }
 
 
@@ -102,8 +140,8 @@ void MMU::setMPRi(unsigned char n, unsigned char data) {
 // we will use 0 to all.
 void MMU::clearMPR() {
 	memset(&mpr, 0x0, 0x7);
-	memset(&io_ram, 0x0, 0x1FFF);
 	memset(&wram, 0x0, 0x7FFF);
 	memset(&HuCardROM, 0x0, 0xFFFF);
-
 }
+
+bool MMU::isTimerEnable() { return timerEnable; }
