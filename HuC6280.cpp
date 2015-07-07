@@ -915,12 +915,12 @@ void HuC6280::txs() {
 
 
 void HuC6280::executeCPU() {
-	unsigned char opcode = memory.readMemory(pc++);
 
 	t_cycles = 0;
 
 	while (t_cycles < MAX_TICKET) {
-
+		unsigned char opcode = memory.readMemory(pc++);
+		
 		// Debug Stuff
 		printf("Opcode: 0x%X\n", opcode);
 		system("read -p \"next opcode\"");
