@@ -56,10 +56,7 @@ public:
    void absoluteIndirect_X();
    void relative();
 
-
-
    // Instruction Set
-
    void adc();
    void and_();
    void asl();
@@ -158,8 +155,9 @@ public:
 
    // CPU Functions
    void resetCPU();
-   void startCPU();
    void executeCPU();
+   void setupROM();
+
 private:
 	// CPU Registers
     unsigned char timer;

@@ -141,7 +141,15 @@ void MMU::setMPRi(unsigned char n, unsigned char data) {
 void MMU::clearMPR() {
 	memset(&mpr, 0x0, 0x7);
 	memset(&wram, 0x0, 0x7FFF);
-	memset(&HuCardROM, 0x0, 0xFFFF);
+	memset(&HuCardROM, 0x0, 0xFFFFF);
 }
 
 bool MMU::isTimerEnable() { return timerEnable; }
+
+bool MMU::startMemory() {
+	if (pceLoader.PCE_LoadFile("test.pce")) {
+		std::memcpy(&HuCardROM, &pceLoader.buffer, pceLoader.size);
+		return true;
+	} else 
+		return false;
+}

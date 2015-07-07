@@ -11,6 +11,14 @@ HuC6280::~HuC6280() {
 
 }
 
+void HuC6280::setupROM() {
+	if (!(memory.startMemory())) {
+		std::cout << "Error in memory loading ! " << std::endl;
+		exit (0);
+	}
+
+	std::cout << "Game loaded with success! " << std::endl;
+}
 
 void HuC6280::resetCPU() {
 	// Clear the general purpose registers and a
@@ -912,6 +920,10 @@ void HuC6280::executeCPU() {
 	t_cycles = 0;
 
 	while (t_cycles < MAX_TICKET) {
+
+		// Debug Stuff
+		printf("Opcode: 0x%X\n", opcode);
+		
 		switch (opcode) {
 
 			// ADC

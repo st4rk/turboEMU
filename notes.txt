@@ -13,3 +13,5 @@ However it was tested afer the CPU already with their respective clock speed.
 -> IRQ2 is used by BRK, IRQ1 is connected to VDC
 
 -> Need to finish the Timer Vector
+
+-> A very important information, some games doesn't have HEADER, if it has a Header, the first byte indicate how manys banks of 8KB the game has, the second byte normally is set to 0, except when the game is 384KB size, the rest is not used.

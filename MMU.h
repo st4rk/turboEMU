@@ -4,7 +4,8 @@
 
 #include <iostream>
 #include <cstring>
- 
+#include "PCE.h"
+
 class MMU {
 public:
 
@@ -22,13 +23,19 @@ public:
     void clearMPR();
 
 
+    bool startMemory();
     bool isTimerEnable();
+
+
+
 private:
+	PCE pceLoader;
 	bool timerEnable;
 	unsigned char timerStart;
 	unsigned char mpr        [0x8];
 	unsigned char wram       [0x8000];
-	unsigned char HuCardROM  [0x10000];
+	unsigned char HuCardROM  [0x100000];
+	
 };
 
 
