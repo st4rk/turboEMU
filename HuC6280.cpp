@@ -39,20 +39,20 @@ void HuC6280::resetCPU() {
 	// Start of Stack
 	sp   = 0x1FF;
 	// Reset Vector
-	pc   = ((memory.readMemory(0xFFFE) << 0x8) | (memory.readMemory(0xFFFF)));
+	pc   = ((memory.readMemory(0x1FFE)) | (memory.readMemory(0x1FFF) << 8));
 
 	// Clear MPR Registers
 	memory.clearMPR();
 }
 
 void HuC6280::push(unsigned char data) {
-	memory.writeMemory(sp, data);
+	memory.writeStack(sp, data);
 	sp = ((sp - 1) & 0x1FF);
 }
 
 unsigned char HuC6280::pop() {
 	sp = ((sp + 1) & 0x1FF);
-	return (memory.readMemory(sp));
+	return (memory.readStack(sp));
 }
 
 
@@ -278,7 +278,7 @@ void HuC6280::brk() {
 	push(flag);
 	CLEAR_FLAG(flag, FLAG_DEC);
 	SET_FLAG(flag, FLAG_INT);
-	pc = ((memory.readMemory(0xFFF6)) | (memory.readMemory(0xFFF7) << 8));
+	pc = ((memory.readMemory(0x1FF6)) | (memory.readMemory(0x1FF7) << 8));
 }
 
 void HuC6280::bsr() {
@@ -923,7 +923,8 @@ void HuC6280::executeCPU() {
 
 		// Debug Stuff
 		printf("Opcode: 0x%X\n", opcode);
-		
+		system("read -p \"next opcode\"");
+
 		switch (opcode) {
 
 			// ADC

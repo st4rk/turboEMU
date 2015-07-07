@@ -16,7 +16,9 @@ public:
     unsigned char readMPRi(unsigned char n);
     unsigned char readIO(unsigned short addr);
     unsigned char getTimerStart();
+    unsigned char readStack(unsigned short addr);
 
+    void writeStack(unsigned short addr, unsigned char data);
     void writeMemory(unsigned short addr, unsigned char data);
     void writeIO(unsigned short addr, unsigned char data);
     void setMPRi(unsigned char n, unsigned char data);

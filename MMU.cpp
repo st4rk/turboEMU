@@ -26,6 +26,16 @@ MMU::~MMU() {
 unsigned char MMU::readMemory(unsigned short addr) {
 	unsigned char MPR = mpr[((addr >> 13) & 0xFF)];
 
+	// Debug Purpose
+	printf("MPR Num: 0x%X\n", MPR);
+
+	printf("Addr: 0x%X\n", addr);
+
+	// HuCardROM First Page, IRQ2, IRQ1, TIMER, NMI and RESET Vector
+	/*if (MPR == 0x00) {
+		return HuCardROM[(addr & 0x1FFF)];
+	}
+	*/
 
 	// HuCard ROM
 	if ((MPR >= 0x00) && (MPR <= 0xF7)) {
@@ -55,16 +65,15 @@ unsigned char MMU::readMemory(unsigned short addr) {
 }
 
 unsigned char MMU::readMPRi(unsigned char n) { return (mpr[n]); }
-
-
 unsigned char MMU::getTimerStart() { return timerStart; }
+unsigned char MMU::readStack(unsigned short addr) { return wram[addr]; }
 
 void MMU::writeMemory(unsigned short addr, unsigned char data) {
 	unsigned char MPR = mpr[((addr >> 13) & 0xFF)];
 
 	// HuCard ROM
 	if ((MPR >= 0x00) && (MPR <= 0xF7)) {
-		HuCardROM[(addr & 0xFFFF)] = data;
+		std::cout << "Probably error" << std::endl;
 	}
 
 	// WRAM
@@ -141,14 +150,18 @@ void MMU::setMPRi(unsigned char n, unsigned char data) {
 void MMU::clearMPR() {
 	memset(&mpr, 0x0, 0x7);
 	memset(&wram, 0x0, 0x7FFF);
-	memset(&HuCardROM, 0x0, 0xFFFFF);
 }
+
+void MMU::writeStack(unsigned short addr, unsigned char data) {
+	wram[addr] = data;
+}
+
 
 bool MMU::isTimerEnable() { return timerEnable; }
 
 bool MMU::startMemory() {
 	if (pceLoader.PCE_LoadFile("test.pce")) {
-		std::memcpy(&HuCardROM, &pceLoader.buffer, pceLoader.size);
+		std::memcpy(HuCardROM, pceLoader.buffer, pceLoader.size);
 		return true;
 	} else 
 		return false;
