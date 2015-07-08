@@ -129,6 +129,9 @@ void HuC6280::relative() {
 
 
 void HuC6280::adc() {
+
+	CLEAR_FLAG(flag, FLAG_T);
+
 	addrReg = memory.readMemory(addrReg);
 	int temp = a + (addrReg) + (flag & FLAG_CARRY);
 
@@ -143,6 +146,8 @@ void HuC6280::adc() {
 }
 
 void HuC6280::and_() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	addrReg = memory.readMemory(addrReg);
 
 	a = (a & addrReg);
@@ -153,6 +158,8 @@ void HuC6280::and_() {
 }
 
 void HuC6280::asl() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	unsigned char temp = memory.readMemory(addrReg);
 
 	if (temp & 0x80) SET_FLAG(flag, FLAG_CARRY); else CLEAR_FLAG(flag, FLAG_CARRY);
@@ -166,6 +173,7 @@ void HuC6280::asl() {
 }
 
 void HuC6280::asl_a() {
+	CLEAR_FLAG(flag, FLAG_T);
 
 	if (a & 0x80) SET_FLAG(flag, FLAG_CARRY); else CLEAR_FLAG(flag, FLAG_CARRY);
 
@@ -179,6 +187,8 @@ void HuC6280::asl_a() {
 // the first one is a zeroPage, the second is the relative
 // we will uses the addrReg_2 to it
 void HuC6280::bbri(char i) {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	addrReg_2 = memory.readMemory(pc++);
 
 	// In the case be a signed byte, it only can jump a maximum of 127 bytes forward
@@ -191,6 +201,7 @@ void HuC6280::bbri(char i) {
 }
 
 void HuC6280::bcc() {
+	CLEAR_FLAG(flag, FLAG_T);
 
 	addrReg = memory.readMemory(addrReg);
 
@@ -202,6 +213,8 @@ void HuC6280::bcc() {
 
 // the same of BBRI
 void HuC6280::bbsi(char i) {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	addrReg_2 = memory.readMemory(pc++);
 
 	// In the case be a signed byte, it only can jump a maximum of 127 bytes forward
@@ -215,6 +228,8 @@ void HuC6280::bbsi(char i) {
 }
 
 void HuC6280::bcs() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	addrReg = memory.readMemory(addrReg);
 
 	if (flag & FLAG_CARRY) {
@@ -224,6 +239,9 @@ void HuC6280::bcs() {
 }
 
 void HuC6280::beq() {
+	CLEAR_FLAG(flag, FLAG_T);
+
+
 	addrReg = memory.readMemory(addrReg);
 
 	if (flag & FLAG_ZERO) {
@@ -232,6 +250,9 @@ void HuC6280::beq() {
 }
 
 void HuC6280::bit() {
+	CLEAR_FLAG(flag, FLAG_T);
+
+
 	addrReg = memory.readMemory(addrReg);
 
 	if (addrReg & FLAG_SIGN) SET_FLAG(flag, FLAG_SIGN); else CLEAR_FLAG(flag, FLAG_SIGN);
@@ -241,6 +262,8 @@ void HuC6280::bit() {
 }
 
 void HuC6280::bmi() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	addrReg = memory.readMemory(addrReg);
 
 	if (flag & FLAG_SIGN) {
@@ -249,6 +272,8 @@ void HuC6280::bmi() {
 }
 
 void HuC6280::bne() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	addrReg = memory.readMemory(addrReg);
 
 	if (!(flag & FLAG_ZERO)) {
@@ -257,6 +282,8 @@ void HuC6280::bne() {
 }
 
 void HuC6280::bpl() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	addrReg = memory.readMemory(addrReg);
 
 	if (!(flag & FLAG_SIGN)) {
@@ -265,12 +292,16 @@ void HuC6280::bpl() {
 }
 
 void HuC6280::bra() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	addrReg = memory.readMemory(addrReg);
 
 	pc += addrReg;
 }
 
 void HuC6280::brk() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	pc++;
 	push(pc >> 8);
 	push(pc & 0xFF);
@@ -282,6 +313,8 @@ void HuC6280::brk() {
 }
 
 void HuC6280::bsr() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	addrReg = memory.readMemory(addrReg);
 	push(pc >> 8);
 	push(pc & 0xFF);
@@ -289,6 +322,8 @@ void HuC6280::bsr() {
 }
 
 void HuC6280::bvs() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	addrReg = memory.readMemory(addrReg);
 
 	if (flag & FLAG_OVER) {
@@ -297,6 +332,8 @@ void HuC6280::bvs() {
 }
 
 void HuC6280::bvc() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	addrReg = memory.readMemory(addrReg);
 
 	if (!(flag & FLAG_SIGN)) {
@@ -305,34 +342,43 @@ void HuC6280::bvc() {
 }
 
 void HuC6280::clc() {
+	CLEAR_FLAG(flag, FLAG_T);
 	CLEAR_FLAG(flag, FLAG_CARRY);	
 }
 
 void HuC6280::cla() {
+	CLEAR_FLAG(flag, FLAG_T);
 	a = 0;	
 }
 
 void HuC6280::cld() {
+	CLEAR_FLAG(flag, FLAG_T);
 	CLEAR_FLAG(flag, FLAG_DEC);	
 }
 
 void HuC6280::cli() {
+	CLEAR_FLAG(flag, FLAG_T);
 	CLEAR_FLAG(flag, FLAG_INT);	
 }
 
 void HuC6280::clv() {
+	CLEAR_FLAG(flag, FLAG_T);
 	CLEAR_FLAG(flag, FLAG_OVER);	
 }
 
 void HuC6280::cly() {
+	CLEAR_FLAG(flag, FLAG_T);
 	y = 0;	
 }
 
 void HuC6280::clx() {
+	CLEAR_FLAG(flag, FLAG_T);
 	x = 0;	
 }
 
 void HuC6280::cpx() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	addrReg = (x - memory.readMemory(addrReg));
 
 	if (!(addrReg & 0x8000)) SET_FLAG(flag, FLAG_CARRY); else CLEAR_FLAG(flag, FLAG_CARRY); 
@@ -345,14 +391,20 @@ void HuC6280::cpx() {
 // Is told which the CSH/CSL take 3 cycles each, however
 // "but that was tested with the CPU already set to the respective clock speed"
 void HuC6280::csh() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	speedMode = SPEED_MODE_HIGH;
 }
 
 void HuC6280::csl() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	speedMode = SPEED_MODE_LOW;
 }
 
 void HuC6280::cmp() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	addrReg = (a - memory.readMemory(addrReg));
 
 	if (!(addrReg & 0x8000)) SET_FLAG(flag, FLAG_CARRY); else CLEAR_FLAG(flag, FLAG_CARRY);
@@ -363,6 +415,8 @@ void HuC6280::cmp() {
 }
 
 void HuC6280::dex() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	x = (x - 1) & 0xFF;
 
 	if (x) CLEAR_FLAG(flag, FLAG_ZERO); else SET_FLAG(flag, FLAG_ZERO);
@@ -371,6 +425,8 @@ void HuC6280::dex() {
 }
 
 void HuC6280::dec() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	unsigned char temp = memory.readMemory(addrReg);
 
 	temp = (temp - 1) & 0xFF;
@@ -383,6 +439,7 @@ void HuC6280::dec() {
 
 
 void HuC6280::dec_a() {
+	CLEAR_FLAG(flag, FLAG_T);
 
 	a = (a - 1) & 0xFF;
 
@@ -393,6 +450,8 @@ void HuC6280::dec_a() {
 
 
 void HuC6280::cpy() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	addrReg = (y - memory.readMemory(addrReg));
 
 	if (!(addrReg & 0x8000)) SET_FLAG(flag, FLAG_CARRY); else CLEAR_FLAG(flag, FLAG_CARRY); 
@@ -403,6 +462,7 @@ void HuC6280::cpy() {
 }
 
 void HuC6280::eor() {
+	CLEAR_FLAG(flag, FLAG_T);
 
 	a = (a ^ memory.readMemory(addrReg)) & 0xFF;
 
@@ -412,6 +472,8 @@ void HuC6280::eor() {
 }
 
 void HuC6280::inc() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	unsigned char temp = memory.readMemory(addrReg);
 
 	temp = (temp + 1) & 0xFF;
@@ -423,6 +485,7 @@ void HuC6280::inc() {
 }
 
 void HuC6280::inc_a() {
+	CLEAR_FLAG(flag, FLAG_T);
 
 	a = (a + 1) & 0xFF;
 
@@ -432,6 +495,8 @@ void HuC6280::inc_a() {
 }
 
 void HuC6280::inx() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	x = (x + 1) & 0xFF;
 	if (x) CLEAR_FLAG(flag, FLAG_ZERO); else SET_FLAG(flag, FLAG_ZERO);
 	if (x & FLAG_SIGN) SET_FLAG(flag, FLAG_SIGN); else SET_FLAG(flag, FLAG_SIGN);
@@ -439,28 +504,38 @@ void HuC6280::inx() {
 }
 
 void HuC6280::dey() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	y = (y - 1) & 0xFF;
 	if (y) CLEAR_FLAG(flag, FLAG_ZERO); else SET_FLAG(flag, FLAG_ZERO);
 	if (y & FLAG_SIGN) SET_FLAG(flag, FLAG_SIGN); else SET_FLAG(flag, FLAG_SIGN);
 }
 
 void HuC6280::iny() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	y = (y + 1) & 0xFF;
 	if (y) CLEAR_FLAG(flag, FLAG_ZERO); else SET_FLAG(flag, FLAG_ZERO);
 	if (y & FLAG_SIGN) SET_FLAG(flag, FLAG_SIGN); else SET_FLAG(flag, FLAG_SIGN);
 }
 
 void HuC6280::jmp() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	pc = addrReg;
 }
 
 void HuC6280::jsr() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	push(pc >> 8);
 	push(pc & 0xFF);
 	pc = addrReg;
 }
 
 void HuC6280::lda() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	a = memory.readMemory(addrReg);
 
 	if (a) CLEAR_FLAG(flag, FLAG_ZERO); else SET_FLAG(flag, FLAG_ZERO);
@@ -468,6 +543,8 @@ void HuC6280::lda() {
 }
 
 void HuC6280::ldx() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	x = memory.readMemory(addrReg);
 
 	if (x) CLEAR_FLAG(flag, FLAG_ZERO); else SET_FLAG(flag, FLAG_ZERO);
@@ -476,6 +553,8 @@ void HuC6280::ldx() {
 }
 
 void HuC6280::ldy() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	y = memory.readMemory(addrReg);
 
 	if (y) CLEAR_FLAG(flag, FLAG_ZERO); else SET_FLAG(flag, FLAG_ZERO);
@@ -484,6 +563,8 @@ void HuC6280::ldy() {
 }
 
 void HuC6280::lsr() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	unsigned char temp = memory.readMemory(addrReg);
 
 
@@ -497,6 +578,8 @@ void HuC6280::lsr() {
 }
 
 void HuC6280::lsr_a() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	if (a & 0x1) SET_FLAG(flag, FLAG_CARRY); else CLEAR_FLAG(flag, FLAG_CARRY);
 
 	a = (a >> 1) & 0xFF;
@@ -507,6 +590,8 @@ void HuC6280::lsr_a() {
 }
 
 void HuC6280::ora() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	a = ((memory.readMemory(addrReg) | a) & 0xFF);
 
 	if (a) CLEAR_FLAG(flag, FLAG_ZERO); else SET_FLAG(flag, FLAG_ZERO);
@@ -514,26 +599,38 @@ void HuC6280::ora() {
 }
 
 void HuC6280::nop() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	// Do Nothing : D
 }
 
 void HuC6280::pha() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	push(a);
 }
 
 void HuC6280::php() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	push(flag);		
 }
 
 void HuC6280::phx() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	push(x);	
 }
 
 void HuC6280::phy() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	push(y);	
 }
 
 void HuC6280::pla() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	a = pop();	
 	if (a) CLEAR_FLAG(flag, FLAG_ZERO); else SET_FLAG(flag, FLAG_ZERO);
 	if (a & FLAG_SIGN) SET_FLAG(flag, FLAG_SIGN); else SET_FLAG(flag, FLAG_SIGN);	
@@ -541,10 +638,14 @@ void HuC6280::pla() {
 }
 
 void HuC6280::plp() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	flag = pop();
 }
 
 void HuC6280::plx() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	x = pop();
 
 	if (x) CLEAR_FLAG(flag, FLAG_ZERO); else SET_FLAG(flag, FLAG_ZERO);
@@ -552,6 +653,8 @@ void HuC6280::plx() {
 }
 
 void HuC6280::ply() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	y = pop();
 	if (y) CLEAR_FLAG(flag, FLAG_ZERO); else SET_FLAG(flag, FLAG_ZERO);
 	if (y & FLAG_SIGN) SET_FLAG(flag, FLAG_SIGN); else SET_FLAG(flag, FLAG_SIGN);	
@@ -559,6 +662,8 @@ void HuC6280::ply() {
 }
 
 void HuC6280::rol() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	unsigned char temp = memory.readMemory(addrReg);
 
 	if (flag & FLAG_CARRY) {
@@ -578,6 +683,8 @@ void HuC6280::rol() {
 }
 
 void HuC6280::rol_a() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	if (flag & FLAG_CARRY) {
 		if (a & 0x80) SET_FLAG(flag, FLAG_CARRY); else CLEAR_FLAG(flag, FLAG_CARRY);
 
@@ -593,10 +700,14 @@ void HuC6280::rol_a() {
 }
 
 void HuC6280::rmbi(char i) {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	memory.writeMemory(addrReg, (memory.readMemory(addrReg) &~i));
 }
 
 void HuC6280::ror() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	unsigned char temp = memory.readMemory(addrReg);
 	if (flag & FLAG_CARRY) {
 		if (temp & 0x1) SET_FLAG(flag, FLAG_CARRY); else CLEAR_FLAG(flag, FLAG_CARRY);
@@ -614,6 +725,8 @@ void HuC6280::ror() {
 }
 
 void HuC6280::ror_a() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	if (flag & FLAG_CARRY) {
 		if (a & 0x1) SET_FLAG(flag, FLAG_CARRY); else CLEAR_FLAG(flag, FLAG_CARRY);
 		a = (a >> 1) | 0x80;
@@ -628,29 +741,39 @@ void HuC6280::ror_a() {
 }
 
 void HuC6280::rti() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	flag = pop();
 	pc = ((pop()) | (pop() << 8));
 
 }
 
 void HuC6280::rts() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	pc = ((pop()) | (pop() << 8));
 	pc++;
 }
 
 void HuC6280::sax() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	unsigned char temp = x;
 	x = a;
 	a = temp;	
 }	
 
 void HuC6280::say() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	unsigned char temp = y;
 	y = a;
 	a = temp;
 }
 
 void HuC6280::sbc() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	
 	addrReg = memory.readMemory(addrReg);
 	unsigned short temp = ((a - addrReg) - (flag & FLAG_CARRY));
@@ -668,61 +791,152 @@ void HuC6280::sbc() {
 }
 
 void HuC6280::sed() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	SET_FLAG(flag, FLAG_DEC);
 }
 
 void HuC6280::sec() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	SET_FLAG(flag, FLAG_CARRY);
 }
 
 void HuC6280::sei() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	SET_FLAG(flag, FLAG_INT);
 }
 
-// TODO: At least, the T flag(the flag unused on 6502) is called "memory operation flag",
-// when this flag is enable, many operations which use the register A now use the memory location
-// pointed by the register X, so I need re-write EOR, AND, ADC, OR[...]
-// Source: http://emu-docs.org/pc%20Engine/pce_doc/pce_cpu.html
+// The Flag T *memory operation* is clear in all instruction
+// however when it is set, if the next instruction is an ADC,
+// AND, ORA or EOR, it should execute with an immediate +
+// zeroPage Indexed with X, otherwise, it ignore the flag
+// and executes the next instruction.
+
 void HuC6280::set() {
 	SET_FLAG(flag, FLAG_T);	
+
+	unsigned char opcode = memory.readMemory(pc++);
+	unsigned char temp_x = memory.readMemory(x);
+	int temp;
+
+	switch (opcode) {
+		
+		// ADC
+		case 0x69:
+			immediate();
+			addrReg = memory.readMemory(addrReg);
+
+			temp = temp_x + (addrReg) + (flag & FLAG_CARRY);
+
+			if (addrReg > 0xFF) SET_FLAG(flag, FLAG_CARRY);
+			if ((~(temp_x ^ addrReg)) & (temp_x^temp) & 0x80) SET_FLAG(flag, FLAG_OVER); else CLEAR_FLAG(flag, FLAG_OVER);
+
+			memory.writeMemory(x,(temp & 0xFF));
+
+			if (temp) CLEAR_FLAG(flag, FLAG_ZERO); else SET_FLAG(flag, FLAG_ZERO);
+			if (temp & FLAG_SIGN) SET_FLAG(flag, FLAG_SIGN); else CLEAR_FLAG(flag, FLAG_SIGN);
+
+		break;
+
+		// ORA
+		case 0x09:
+			immediate();
+			addrReg = memory.readMemory(addrReg);
+
+			memory.writeMemory(x, (temp_x | addrReg));
+
+			if (temp_x | addrReg) CLEAR_FLAG(flag, FLAG_ZERO); else SET_FLAG(flag, FLAG_ZERO);
+			if ((temp_x | addrReg) & FLAG_SIGN) SET_FLAG(flag, FLAG_SIGN); else CLEAR_FLAG(flag, FLAG_SIGN);
+
+		break;
+		
+		// EOR
+		case 0x49:
+			immediate();
+			addrReg = memory.readMemory(addrReg);
+
+			memory.writeMemory(x, (temp_x ^ addrReg));
+
+			if (temp_x | addrReg) CLEAR_FLAG(flag, FLAG_ZERO); else SET_FLAG(flag, FLAG_ZERO);
+			if ((temp_x | addrReg) & FLAG_SIGN) SET_FLAG(flag, FLAG_SIGN); else CLEAR_FLAG(flag, FLAG_SIGN);
+
+		break;
+		
+		// AND
+		case 0x29:
+			immediate();
+			addrReg = memory.readMemory(addrReg);
+
+			memory.writeMemory(x, (temp_x & addrReg));
+
+			if (temp_x | addrReg) CLEAR_FLAG(flag, FLAG_ZERO); else SET_FLAG(flag, FLAG_ZERO);
+			if ((temp_x | addrReg) & FLAG_SIGN) SET_FLAG(flag, FLAG_SIGN); else CLEAR_FLAG(flag, FLAG_SIGN);
+
+		break;
+
+		default: // ignore the instruction and execute it normal
+			pc--;
+		break;
+	}
+
 }
 
 // this operation sets /CE7, A1, and A0 to logical LOW. 
 void HuC6280::st0() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	memory.writeIO(0xE000, memory.readMemory(addrReg));
 }
 
 //this operation sets /CE7 and A0 to logical LOW, while setting A1 to logical HIGH. 
 void HuC6280::st1() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	memory.writeIO(0xE002, memory.readMemory(addrReg));	
 }
 
 //this operation sets /CE7 to logical LOW, while setting A0 and A1 to logical HIGH. 
 void HuC6280::st2() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	memory.writeIO(0xE003, memory.readMemory(addrReg));		
 }
 
 void HuC6280::smbi(char i) {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	memory.writeMemory(addrReg, (memory.readMemory(addrReg) | i));
 }
 
 void HuC6280::sta() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	memory.writeMemory(addrReg, a);	
 }
 
 void HuC6280::stx() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	memory.writeMemory(addrReg, x);
 }
 
 void HuC6280::sty() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	memory.writeMemory(addrReg, y);
 }
 
 void HuC6280::stz() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	memory.writeMemory(addrReg, 0);	
 }
 
 void HuC6280::tai() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	unsigned short src = (memory.readMemory(pc)   | (memory.readMemory(pc+1) << 8));
 	unsigned short dst = (memory.readMemory(pc+2) | (memory.readMemory(pc+3) << 8));
 	unsigned short len = (memory.readMemory(pc+4) | (memory.readMemory(pc+5) << 8));
@@ -741,12 +955,16 @@ void HuC6280::tai() {
 }
 
 void HuC6280::sxy() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	unsigned char temp = x;
 	x = y;
 	y = temp;	
 }
 
 void HuC6280::tami() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	addrReg = memory.readMemory(pc++);
 
 	// Verify each bit on the immediate value
@@ -763,6 +981,8 @@ void HuC6280::tami() {
 }
 
 void HuC6280::tax() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	x = a;
 
 	if (x) CLEAR_FLAG(flag, FLAG_ZERO); else SET_FLAG(flag, FLAG_ZERO);
@@ -771,6 +991,8 @@ void HuC6280::tax() {
 }
 
 void HuC6280::tay() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	y = a;
 
 	if (y) CLEAR_FLAG(flag, FLAG_ZERO); else SET_FLAG(flag, FLAG_ZERO);
@@ -780,6 +1002,8 @@ void HuC6280::tay() {
 
 
 void HuC6280::tia() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	unsigned short src = (memory.readMemory(pc)   | (memory.readMemory(pc+1) << 8));
 	unsigned short dst = (memory.readMemory(pc+2) | (memory.readMemory(pc+3) << 8));
 	unsigned short len = (memory.readMemory(pc+4) | (memory.readMemory(pc+5) << 8));
@@ -799,6 +1023,8 @@ void HuC6280::tia() {
 
 
 void HuC6280::tdd() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	unsigned short src = (memory.readMemory(pc)   | (memory.readMemory(pc+1) << 8));
 	unsigned short dst = (memory.readMemory(pc+2) | (memory.readMemory(pc+3) << 8));
 	unsigned short len = (memory.readMemory(pc+4) | (memory.readMemory(pc+5) << 8));
@@ -816,6 +1042,8 @@ void HuC6280::tdd() {
 
 
 void HuC6280::tin() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	unsigned short src = (memory.readMemory(pc)   | (memory.readMemory(pc+1) << 8));
 	unsigned short dst = (memory.readMemory(pc+2) | (memory.readMemory(pc+3) << 8));
 	unsigned short len = (memory.readMemory(pc+4) | (memory.readMemory(pc+5) << 8));
@@ -830,6 +1058,8 @@ void HuC6280::tin() {
 }
 
 void HuC6280::tii() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	unsigned short src = (memory.readMemory(pc)   | (memory.readMemory(pc+1) << 8));
 	unsigned short dst = (memory.readMemory(pc+2) | (memory.readMemory(pc+3) << 8));
 	unsigned short len = (memory.readMemory(pc+4) | (memory.readMemory(pc+5) << 8));
@@ -845,6 +1075,8 @@ void HuC6280::tii() {
 }
 
 void HuC6280::tmai() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	addrReg = memory.readMemory(pc++);
 	if (addrReg & 0x1)  a = memory.readMPRi(0);
 	if (addrReg & 0x2)  a = memory.readMPRi(1);
@@ -857,6 +1089,8 @@ void HuC6280::tmai() {
 }
 
 void HuC6280::trb() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	unsigned char var = memory.readMemory(addrReg);
 
 	if ((a & var) & FLAG_SIGN) SET_FLAG(flag, FLAG_SIGN); else CLEAR_FLAG(flag, FLAG_SIGN);
@@ -868,6 +1102,8 @@ void HuC6280::trb() {
 }
 
 void HuC6280::tsb() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	unsigned char var = memory.readMemory(addrReg);
 
 	if ((a & var) & FLAG_SIGN) SET_FLAG(flag, FLAG_SIGN); else CLEAR_FLAG(flag, FLAG_SIGN);
@@ -879,6 +1115,7 @@ void HuC6280::tsb() {
 }
 
 void HuC6280::tst() {
+	CLEAR_FLAG(flag, FLAG_T);
 
 	if (addrReg & FLAG_SIGN) SET_FLAG(flag, FLAG_SIGN); else CLEAR_FLAG(flag, FLAG_SIGN);
 	if (addrReg & FLAG_OVER) SET_FLAG(flag, FLAG_OVER); else CLEAR_FLAG(flag, FLAG_SIGN);
@@ -887,6 +1124,8 @@ void HuC6280::tst() {
 }
 
 void HuC6280::tsx() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	x = (sp & 0xFF);
 	if (x) CLEAR_FLAG(flag, FLAG_ZERO); else SET_FLAG(flag, FLAG_ZERO);
 	if (x & FLAG_SIGN) SET_FLAG(flag, FLAG_SIGN); else SET_FLAG(flag, FLAG_SIGN);	
@@ -894,6 +1133,8 @@ void HuC6280::tsx() {
 }
 
 void HuC6280::txa() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	a = x;
 	if (a) CLEAR_FLAG(flag, FLAG_ZERO); else SET_FLAG(flag, FLAG_ZERO);
 	if (a & FLAG_SIGN) SET_FLAG(flag, FLAG_SIGN); else SET_FLAG(flag, FLAG_SIGN);	
@@ -901,6 +1142,8 @@ void HuC6280::txa() {
 }
 
 void HuC6280::tya() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	a = y;
 	if (a) CLEAR_FLAG(flag, FLAG_ZERO); else SET_FLAG(flag, FLAG_ZERO);
 	if (a & FLAG_SIGN) SET_FLAG(flag, FLAG_SIGN); else SET_FLAG(flag, FLAG_SIGN);	
@@ -909,12 +1152,15 @@ void HuC6280::tya() {
 
 
 void HuC6280::txs() {
+	CLEAR_FLAG(flag, FLAG_T);
+
 	sp = (0x100 | x);
 }
 
 
 
 void HuC6280::executeCPU() {
+	char debug[20];
 
 	t_cycles = 0;
 
@@ -922,10 +1168,15 @@ void HuC6280::executeCPU() {
 		unsigned char opcode = memory.readMemory(pc++);
 		
 		// Debug Stuff
-		printf("Opcode: 0x%X\n", opcode);
-		system("read -p \"next opcode\"");
+
+		sprintf(debug, "A: 0x%X X: 0x%X Y: 0x%X SP: 0x%X PC: 0x%X P: 0x%X \n", a,x,y,sp,pc, flag);
+		memory.writeLog(debug);
+		sprintf(debug, "opcode fetch: 0x%X\n", opcode);
+		memory.writeLog(debug);
 
 		switch (opcode) {
+
+
 
 			// ADC
 			case 0x69:

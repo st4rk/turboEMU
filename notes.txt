@@ -15,3 +15,7 @@ However it was tested afer the CPU already with their respective clock speed.
 -> Need to finish the Timer Vector
 
 -> A very important information, some games doesn't have HEADER, if it has a Header, the first byte indicate how manys banks of 8KB the game has, the second byte normally is set to 0, except when the game is 384KB size, the rest is not used.
+
+
+-> About T Flag (memory operation), on the documentation, it only say which it modify the EOR/AND/ORA/ADC to work with a zeroPage Indexed with X instead accumulator and that each instruction will clear the T Flag. I think (and I did it) which the next instruction to be fetched should be one of these that modify how it work, else, it only ignore the flag and execute normal. the doubt is about it should work with all addressing mode ? or only with immediate ? I did a look on two PC Engine emulators, the first one (HuGo), did it with all addressing mode, however the tgemu only with immediate(I did it too) and has a little description how the T flag should work(thanks God).
+ 

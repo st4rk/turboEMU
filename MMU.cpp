@@ -3,11 +3,12 @@
 
 
 MMU::MMU() {
-
+	log = fopen("log.txt", "w");
 }
 
 MMU::~MMU() {
-
+	fclose(log);
+	log = NULL;
 }
 
 
@@ -25,17 +26,11 @@ MMU::~MMU() {
 
 unsigned char MMU::readMemory(unsigned short addr) {
 	unsigned char MPR = mpr[((addr >> 13) & 0xFF)];
+	char debug[20];
 
 	// Debug Purpose
-	printf("MPR Num: 0x%X\n", MPR);
-
-	printf("Addr: 0x%X\n", addr);
-
-	// HuCardROM First Page, IRQ2, IRQ1, TIMER, NMI and RESET Vector
-	/*if (MPR == 0x00) {
-		return HuCardROM[(addr & 0x1FFF)];
-	}
-	*/
+	sprintf(debug, "MPR Num: 0x%X  Addr: 0x%X\n", MPR, addr);
+	writeLog(debug);
 
 	// HuCard ROM
 	if ((MPR >= 0x00) && (MPR <= 0xF7)) {
@@ -70,10 +65,16 @@ unsigned char MMU::readStack(unsigned short addr) { return wram[addr]; }
 
 void MMU::writeMemory(unsigned short addr, unsigned char data) {
 	unsigned char MPR = mpr[((addr >> 13) & 0xFF)];
+	char debug[20];
 
 	// HuCard ROM
 	if ((MPR >= 0x00) && (MPR <= 0xF7)) {
-		std::cout << "Probably error" << std::endl;
+		// Only for debug purpose
+
+		writeLog("Trying write on HuCardROM !\n");
+		sprintf(debug, "Addr: 0x%X  - Data: 0x%X\n", addr, data);
+		writeLog(debug);
+
 	}
 
 	// WRAM
@@ -154,6 +155,10 @@ void MMU::clearMPR() {
 
 void MMU::writeStack(unsigned short addr, unsigned char data) {
 	wram[addr] = data;
+}
+
+void MMU::writeLog(std::string text) {
+	fprintf(log, text.c_str());
 }
 
 

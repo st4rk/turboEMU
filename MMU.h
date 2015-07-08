@@ -23,6 +23,7 @@ public:
     void writeIO(unsigned short addr, unsigned char data);
     void setMPRi(unsigned char n, unsigned char data);
     void clearMPR();
+    void writeLog(std::string text);
 
 
     bool startMemory();
@@ -37,6 +38,11 @@ private:
 	unsigned char mpr        [0x8];
 	unsigned char wram       [0x8000];
 	unsigned char HuCardROM  [0x100000];
+
+
+	// Only for debug purpose, log system
+
+	FILE *log;
 	
 };
 
