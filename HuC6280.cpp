@@ -887,21 +887,21 @@ void HuC6280::set() {
 void HuC6280::st0() {
 	CLEAR_FLAG(flag, FLAG_T);
 
-	memory.writeIO(0xE000, memory.readMemory(addrReg));
+	memory.writeIO(0x0, memory.readMemory(addrReg));
 }
 
 //this operation sets /CE7 and A0 to logical LOW, while setting A1 to logical HIGH. 
 void HuC6280::st1() {
 	CLEAR_FLAG(flag, FLAG_T);
 
-	memory.writeIO(0xE002, memory.readMemory(addrReg));	
+	memory.writeIO(0x2, memory.readMemory(addrReg));	
 }
 
 //this operation sets /CE7 to logical LOW, while setting A0 and A1 to logical HIGH. 
 void HuC6280::st2() {
 	CLEAR_FLAG(flag, FLAG_T);
 
-	memory.writeIO(0xE003, memory.readMemory(addrReg));		
+	memory.writeIO(0x3, memory.readMemory(addrReg));		
 }
 
 void HuC6280::smbi(char i) {
@@ -1169,7 +1169,7 @@ void HuC6280::executeCPU() {
 		
 		// Debug Stuff
 
-		sprintf(debug, "A: 0x%X X: 0x%X Y: 0x%X SP: 0x%X PC: 0x%X P: 0x%X \n", a,x,y,sp,pc, flag);
+		sprintf(debug, "A: 0x%X X: 0x%X Y: 0x%X SP: 0x%X PC: 0x%X P: 0x%X \n", a,x,y,sp,(pc-1), flag);
 		memory.writeLog(debug);
 		sprintf(debug, "opcode fetch: 0x%X\n", opcode);
 		memory.writeLog(debug);

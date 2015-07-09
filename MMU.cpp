@@ -24,6 +24,8 @@ MMU::~MMU() {
 // Segment 0xF8 ~ 0xFB -> WRAM (segment F9,FA and FB mirror segment FB)
 // Segment 0x00 ~ 0xF7 -> HuCard ROM
 
+// TODO: All Mirror
+
 unsigned char MMU::readMemory(unsigned short addr) {
 	unsigned char MPR = mpr[((addr >> 13) & 0xFF)];
 	char debug[20];
@@ -38,20 +40,76 @@ unsigned char MMU::readMemory(unsigned short addr) {
 	}
 
 	// WRAM
-
 	if ((MPR >= 0xF8) && (MPR <= 0xFB)) {
 		return wram[(addr & 0x7FFF)];
 	}
 
 	// Unused
-
 	if ((MPR >= 0xFC) && (MPR <= 0xFE)) {
 		return 0xFF;
 	}
 
-	// IO RAM
-
+	// Interrupt, timers, I/O ports
+	// VDC/VCE(HuC6270 and HuC6260)
 	if (MPR == 0xFF) {
+		// Region map 0x0000 ~ 0x1FFF
+		addr = (addr & 0x1FFF);
+		// VDC (Video Display Controller)
+		// registers mirrored every 4 bytes
+		if ((addr >= 0x0000) && (addr <= 0x03FF)) {
+
+		}
+
+		// VCE (Video Color Encoder)
+		// registers mirrored every 8 bytes
+		if ((addr >= 0x4000) && (addr <= 0x07FF)) {
+
+		}
+
+		// PSG (Programmable Sound Generator)
+		if ((addr >= 0x0800) && (addr <= 0x0BFF)) {
+
+		}
+
+		// Timer 
+		// registers mirrored every 2 bytes
+		if ((addr >= 0x0C00) && (addr <= 0x0FFF)) {
+			// 0x0C00 Timer Counter/Value
+			if (addr == 0x0C00)
+				return timerStart;	
+
+			// 0x0C01 Time Enable
+			if (addr == 0x0C01)
+				return timerEnable;
+		}
+
+		// I/O port 
+		// mirrored every 2 bytes
+		if ((addr >= 0x1000) && (addr <= 0x13FF)) {
+
+		}
+
+
+		// Interrupt Control Register
+		// registers mirrored every 4 bytes 
+		if ((addr >= 0x1400) && (addr <= 0x17FF)) {
+			// 0x1402 - IRQ MASK
+			// bit 0 IRQ2D = enable/disable
+			// bit 1 IRQ1D = enable/disable
+			// bit 2 TIQD  = enable/disable
+			// bit 3 ~ 7 unused
+			if (addr == 0x1402) 
+				std::cout << "IRQ Mask" << std::endl;
+
+			// 0x1403 - Interrupt status
+			if (addr == 0x1403)
+				std::cout << "Interrupt Status" << std::endl;
+		}
+
+		// 0x1800 ~ 0x1FFF always return FF
+		// however there is documentation talking about
+		// the region 0x1800 ~ 0x1BFF that is the CD-ROM Section
+		return 0xFF;
 		
 	}
 
@@ -78,7 +136,6 @@ void MMU::writeMemory(unsigned short addr, unsigned char data) {
 	}
 
 	// WRAM
-
 	if ((MPR >= 0xF8) && (MPR <= 0xFB)) {
 		wram[(addr & 0x7FFF)] = data;
 	}
@@ -88,8 +145,8 @@ void MMU::writeMemory(unsigned short addr, unsigned char data) {
 		printf("Write on unused, data: 0x%X\n", data);
 	}
 
-	// IO RAM
-
+	// Hardware Page
+	// Interrupt, timers, I/O etc...
 	if (MPR == 0xFF) {
 		writeIO((addr & 0x1FFF), data);
 	}
@@ -97,45 +154,66 @@ void MMU::writeMemory(unsigned short addr, unsigned char data) {
 }
 
 
+// There are instroctuions (STO, ST1 and ST2) which
+// written direct to the registers of HuC6270
+// besides this we have the writeMemory 
 void MMU::writeIO(unsigned short addr, unsigned char data) {
-
-	// HuC6270 Ports /CE7
-	if ((addr >= 0x0) && (addr <= 0x3FF)) {
-
-	}
-
-	// HuC6260 Ports /CEK
-	if ((addr >= 0x400) && (addr <= 0x7FF)) {
+	// VDC (Video Display Controller)
+	// registers mirrored every 4 bytes
+	if ((addr >= 0x0000) && (addr <= 0x03FF)) {
 
 	}
 
-	// PSG Ports /CEP
-	if ((addr >= 0x800) && (addr <= 0xBFF)) {
+	// VCE (Video Color Encoder)
+	// registers mirrored every 8 bytes
+	if ((addr >= 0x4000) && (addr <= 0x07FF)) {
 
 	}
 
-	// Timer /CET
-	if ((addr >= 0xC00) && (addr <= 0xFFF)) {
-		// is only used the bits 0 ~ 6
+	// PSG (Programmable Sound Generator)
+	if ((addr >= 0x0800) && (addr <= 0x0BFF)) {
+
+	}
+
+	// Timer 
+	// registers mirrored every 2 bytes
+	if ((addr >= 0x0C00) && (addr <= 0x0FFF)) {
+		// 0x0C00 Timer Counter/Value
 		if (addr == 0x0C00)
-			timerStart = (data & 0x7F) + 1;
+			timerStart = data;
 
-		// only bit 0 is used ! 
+		// 0x0C01 Time Enable
 		if (addr == 0x0C01)
-			timerEnable = (data & 0x1);
+			timerEnable = (addr & 0x1);
 	}
 
-	// I/O Ports /CEIO
+	// I/O port 
+	// mirrored every 2 bytes
 	if ((addr >= 0x1000) && (addr <= 0x13FF)) {
+		// 0x1000 Joypad
+		if (addr == 0x1000) 
+			std::cout << "joypad" << std::endl;
 
 	}
 
-	// Interrupt Request / Disable Registers /CECG
+
+	// Interrupt Control Register
+	// registers mirrored every 4 bytes
 	if ((addr >= 0x1400) && (addr <= 0x17FF)) {
+		// 0x1402 - IRQ MASK
+		// bit 0 IRQ2 = enable/disable
+		// bit 1 IRQ1 = enable/disable
+		// bit 2 timer  = enable/disable
+		// bit 3 ~ 7 unused
+		if (addr == 0x1402) 
+			std::cout << "IRQ Mask" << std::endl;
+
+		// 0x1403 - timer interrupt ?
+
+		if (addr == 0x1403)
+			std::cout << "Timer" << std::endl;
 
 	}
-
-	// Beyond it is reserverd for expansion.
 }
 
 

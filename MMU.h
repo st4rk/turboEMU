@@ -41,7 +41,6 @@ private:
 
 
 	// Only for debug purpose, log system
-
 	FILE *log;
 	
 };
