@@ -3,15 +3,15 @@ turboEMU
 
 turboEMU is a PC Engine/TurboGrafx-16 emulator, it should run on Linux/Windows.
 
-This emulator is under development and has many bugs and incomplete features, for now some parts are near to be done.
-* HuC6280 can execute all instruction (accuracy is very bad yet and need fix some bugs).
-* MMU can handle memory between the HuC6280/HuC6270, however still need some improves and functions to be done.
-* HuC6270 has begun to be written, however need many functions to works (i.e DMA Channel for SATB).
+This emulator is under development and has many bugs and incomplete features, for now some parts are near done.
+* HuC6280 can execute all instructions (accuracy is still very bad yet and needs some bugs fixed).
+* MMU can handle memory between the HuC6280/HuC6270, however it still needs some improvements and functions to be done.
+* HuC6270 was started, however it still needs many functions to work (i.e DMA Channel for SATB).
 
 
--- Dependences --
+-- Dependencies --
 
-If you want to build that project, you will need SDL 2.0 installed. 
+If you want to build this project, you will need SDL 2.0 installed. 
 
 This project is licensed under the terms of the MIT license.
 
