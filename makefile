@@ -1,7 +1,7 @@
 TARGET = turboEMU
-LIBS = -lm
+LIBS = -lm -lSDL2
 CC = g++ 
-CFLAGS = -std=c++11 -g -Wall -lSDL2
+CFLAGS = -std=c++11 -g -Wall 
 
 .PHONY: default all clean
 

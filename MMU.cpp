@@ -57,13 +57,28 @@ unsigned char MMU::readMemory(unsigned short addr) {
 		// VDC (Video Display Controller)
 		// registers mirrored every 4 bytes
 		if ((addr >= 0x0000) && (addr <= 0x03FF)) {
+			// 0xE000 -> VDC Status Register
+			//if (addr == 0x0000) // Only used the bits 0 ~ 4, bits 5 ~ 7 are ignored
+				//return (*vdcStatus);
 
+			// 0xE002 -> Low Data register
+			//if (addr == 0x0002) 
+				//return (*vdcDataL);
+
+			// 0xE003 -> High Data register
+			//if (addr == 0x0003)
+				//return (*vdcDataM);
+		
 		}
 
 		// VCE (Video Color Encoder)
 		// registers mirrored every 8 bytes
-		if ((addr >= 0x4000) && (addr <= 0x07FF)) {
-
+		if ((addr >= 0x0400) && (addr <= 0x07FF)) {
+			// 0x0400 - Control Register
+			// 0x0402 - Color Table Address
+			// 0x0403 - Color Table Address
+			// 0x0404 - Color Table Data
+			// 0x0405 - Color Table Data
 		}
 
 		// PSG (Programmable Sound Generator)
@@ -117,9 +132,11 @@ unsigned char MMU::readMemory(unsigned short addr) {
 	return 0xFF;
 }
 
-unsigned char MMU::readMPRi(unsigned char n) { return (mpr[n]); }
-unsigned char MMU::getTimerStart() { return timerStart; }
+unsigned char MMU::readMPRi(unsigned char n)      { return (mpr[n]); }
+unsigned char MMU::getTimerStart()                { return timerStart; }
 unsigned char MMU::readStack(unsigned short addr) { return wram[addr]; }
+
+unsigned char* MMU::getVRAM() { return (vram);    }
 
 void MMU::writeMemory(unsigned short addr, unsigned char data) {
 	unsigned char MPR = mpr[((addr >> 13) & 0xFF)];
@@ -161,13 +178,23 @@ void MMU::writeIO(unsigned short addr, unsigned char data) {
 	// VDC (Video Display Controller)
 	// registers mirrored every 4 bytes
 	if ((addr >= 0x0000) && (addr <= 0x03FF)) {
+		// 0xE000 -> VDC Address Select
+		// Only used the bits 0 ~ 4, bits 5 ~ 7 are ignored
+		// 0xE002 -> Low Data register
+		// 0xE003 -> High Data register
+		VDC->writeVDC(addr, data);
 
+		return;
 	}
 
 	// VCE (Video Color Encoder)
 	// registers mirrored every 8 bytes
-	if ((addr >= 0x4000) && (addr <= 0x07FF)) {
-
+	if ((addr >= 0x0400) && (addr <= 0x07FF)) {
+		// 0x0400 - Control Register
+		// 0x0402 - Color Table Address
+		// 0x0403 - Color Table Address
+		// 0x0404 - Color Table Data
+		// 0x0405 - Color Table Data
 	}
 
 	// PSG (Programmable Sound Generator)
@@ -221,14 +248,20 @@ void MMU::setMPRi(unsigned char n, unsigned char data) {
 	mpr[n] = data;
 }
 
+
+void MMU::setupVDC(HuC6270 *vdc) {
+	VDC = vdc;
+}
+
 // It will clear all memory segments
 // and will clear the memory mapping registers
 // normally the only MPR7 is set to 0 and the 
 // other has random numbers, in this case
 // we will use 0 to all.
 void MMU::clearMPR() {
-	memset(&mpr, 0x0, 0x7);
-	memset(&wram, 0x0, 0x7FFF);
+	std::memset(&mpr,  0x0, 0x7);
+	std::memset(&wram, 0x0, 0x7FFF);
+	std::memset(&vram, 0x0, 0xFA00);
 }
 
 void MMU::writeStack(unsigned short addr, unsigned char data) {

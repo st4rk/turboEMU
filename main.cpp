@@ -1,19 +1,23 @@
 
 
 #include "HuC6280.h"
-
+#include "HuC6270.h"
+#include "MMU.h"
 
 int main(int argc, char **argv) {
-	HuC6280 mainCore;
+	MMU mMMU;
+	HuC6280 CPU(&mMMU);
+	HuC6270 VDC(&mMMU);
+
+	mMMU.setupVDC(&VDC);
 
 	std::cout << "turbo EMU - Written by St4rk" << std::endl;
 	std::cout << "Loading PCE..." << std::endl;
-	mainCore.setupROM();
-	mainCore.resetCPU();
+	CPU.setupROM();
+	CPU.resetCPU();
 
-
-	while (true) {
-		mainCore.executeCPU();
+	while (1) {
+		CPU.executeCPU();
 	}
 
 	return 0;

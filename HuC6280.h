@@ -35,7 +35,7 @@
 
 class HuC6280 {
 public:
-	HuC6280();
+	HuC6280(MMU *ptr);
    ~HuC6280();
 
    // Stack
@@ -157,7 +157,7 @@ public:
    void resetCPU();
    void executeCPU();
    void setupROM();
-
+   
 private:
 	// CPU Registers
     unsigned char timer;
@@ -173,7 +173,7 @@ private:
     unsigned short t_cycles;
     short addrReg; // This register is used to store values from addr modes
     short addrReg_2; // there is some instructions(TST, BBRI[...]) which uses more than one addressing mode
-    MMU memory;
+    MMU *memory;
 };
 
 

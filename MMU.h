@@ -5,6 +5,9 @@
 #include <iostream>
 #include <cstring>
 #include "PCE.h"
+#include "HuC6270.h"
+
+class HuC6270;
 
 class MMU {
 public:
@@ -24,11 +27,13 @@ public:
     void setMPRi(unsigned char n, unsigned char data);
     void clearMPR();
     void writeLog(std::string text);
+    void setupVDC(HuC6270 *vdc);
 
 
     bool startMemory();
     bool isTimerEnable();
 
+    unsigned char* getVRAM();
 
 
 private:
@@ -37,8 +42,13 @@ private:
 	unsigned char timerStart;
 	unsigned char mpr        [0x8];
 	unsigned char wram       [0x8000];
-	unsigned char HuCardROM  [0x100000];
+    unsigned char HuCardROM  [0x100000];
+    unsigned char vram       [0x10000];
 
+    // CPU can access some registers of HuC6270(VDC) and HuC6260(VCE)
+    // So we will use *ptr to solve it =)
+
+    HuC6270* VDC;
 
 	// Only for debug purpose, log system
 	FILE *log;
