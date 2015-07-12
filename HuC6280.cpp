@@ -93,7 +93,7 @@ void HuC6280::indexedIndirect_X() {
 }
 
 void HuC6280::indirectIndexed_Y() {
-	addrReg = memory->readMemory(pc++);
+	addrReg = memory->readMemory(pc++); 
 	addrReg = (memory->readMemory(addrReg) | (memory->readMemory((addrReg + 1) & 0xFF) << 8));
 	addrReg += y;
 }
@@ -123,7 +123,7 @@ void HuC6280::relative() {
 	addrReg = memory->readMemory(pc++);
 
 	// In the case be a signed byte, it only can jump a maximum of 127 bytes forward
-	if (addrReg & FLAG_SIGN) addrReg -= 255;
+	if (addrReg & FLAG_SIGN) addrReg -= 0x100;
 }
 
 
@@ -192,7 +192,7 @@ void HuC6280::bbri(char i) {
 	addrReg_2 = memory->readMemory(pc++);
 
 	// In the case be a signed byte, it only can jump a maximum of 127 bytes forward
-	if (addrReg_2 & FLAG_SIGN) addrReg -= 255;
+	if (addrReg_2 & FLAG_SIGN) addrReg_2 -= 0x100;
 
 	addrReg = memory->readMemory(addrReg);
 
@@ -218,7 +218,7 @@ void HuC6280::bbsi(char i) {
 	addrReg_2 = memory->readMemory(pc++);
 
 	// In the case be a signed byte, it only can jump a maximum of 127 bytes forward
-	if (addrReg_2 & FLAG_SIGN) addrReg -= 255;
+	if (addrReg_2 & FLAG_SIGN) addrReg_2 -= 0x100;
 
 	addrReg = memory->readMemory(addrReg);
 
@@ -948,7 +948,7 @@ void HuC6280::sxy() {
 void HuC6280::tami() {
 	CLEAR_FLAG(flag, FLAG_T);
 
-	addrReg = memory->readMemory(pc++);
+	addrReg = memory->readMemory(addrReg);
 
 	// Verify each bit on the immediate value
 	// if the bit is set, set the mpr"i" with accumulator
@@ -1060,15 +1060,16 @@ void HuC6280::tii() {
 void HuC6280::tmai() {
 	CLEAR_FLAG(flag, FLAG_T);
 
-	addrReg = memory->readMemory(pc++);
-	if (addrReg & 0x1)  a = memory->readMPRi(0);
-	if (addrReg & 0x2)  a = memory->readMPRi(1);
-	if (addrReg & 0x4)  a = memory->readMPRi(2);
-	if (addrReg & 0x8)  a = memory->readMPRi(3);
-	if (addrReg & 0x10) a = memory->readMPRi(4);
-	if (addrReg & 0x20) a = memory->readMPRi(5);
-	if (addrReg & 0x40) a = memory->readMPRi(6);
-	if (addrReg & 0x80) a = memory->readMPRi(7);		
+	addrReg = memory->readMemory(addrReg);
+
+	if (addrReg & 0x1)  {a = memory->readMPRi(0); return; }
+	if (addrReg & 0x2)  {a = memory->readMPRi(1); return; }
+	if (addrReg & 0x4)  {a = memory->readMPRi(2); return; }
+	if (addrReg & 0x8)  {a = memory->readMPRi(3); return; }
+	if (addrReg & 0x10) {a = memory->readMPRi(4); return; }
+	if (addrReg & 0x20) {a = memory->readMPRi(5); return; }
+	if (addrReg & 0x40) {a = memory->readMPRi(6); return; }
+	if (addrReg & 0x80) {a = memory->readMPRi(7); return; }		
 }
 
 void HuC6280::trb() {
@@ -2404,6 +2405,7 @@ void HuC6280::executeCPU() {
 			break;
 
 			case 0x53:
+				immediate();
 				tami();
 				t_cycles += 5;
 			break;
@@ -2435,7 +2437,9 @@ void HuC6280::executeCPU() {
 			break;
 
 			case 0x43:
+				immediate();
 				tmai();
+				t_cycles += 4;
 			break;
 
 			case 0x14:
