@@ -14,8 +14,8 @@
 #define FLAG_OVER  0x40
 #define FLAG_SIGN  0x80
 
-#define SET_FLAG(f, n) (f | n)
-#define CLEAR_FLAG(f, n) (f & ~n)
+#define SET_FLAG(f, n) (f = f | n)
+#define CLEAR_FLAG(f, n) (f = f & ~n)
 
 
 // The processor can operate in two different speed mode

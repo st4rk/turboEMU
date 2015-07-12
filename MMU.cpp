@@ -28,11 +28,15 @@ MMU::~MMU() {
 
 unsigned char MMU::readMemory(unsigned short addr) {
 	unsigned char MPR = mpr[((addr >> 13) & 0xFF)];
+
 	char debug[20];
 
 	// Debug Purpose
 	sprintf(debug, "MPR Num: 0x%X  Addr: 0x%X\n", MPR, addr);
 	writeLog(debug);
+
+	// Get Only 13 bits !
+	addr = addr & 0x1FFF;
 
 	// HuCard ROM
 	if ((MPR >= 0x00) && (MPR <= 0xF7)) {
@@ -52,23 +56,10 @@ unsigned char MMU::readMemory(unsigned short addr) {
 	// Interrupt, timers, I/O ports
 	// VDC/VCE(HuC6270 and HuC6260)
 	if (MPR == 0xFF) {
-		// Region map 0x0000 ~ 0x1FFF
-		addr = (addr & 0x1FFF);
 		// VDC (Video Display Controller)
 		// registers mirrored every 4 bytes
 		if ((addr >= 0x0000) && (addr <= 0x03FF)) {
-			// 0xE000 -> VDC Status Register
-			//if (addr == 0x0000) // Only used the bits 0 ~ 4, bits 5 ~ 7 are ignored
-				//return (*vdcStatus);
-
-			// 0xE002 -> Low Data register
-			//if (addr == 0x0002) 
-				//return (*vdcDataL);
-
-			// 0xE003 -> High Data register
-			//if (addr == 0x0003)
-				//return (*vdcDataM);
-		
+			VDC->readVDC((addr & 0x3));
 		}
 
 		// VCE (Video Color Encoder)
@@ -101,7 +92,13 @@ unsigned char MMU::readMemory(unsigned short addr) {
 		// I/O port 
 		// mirrored every 2 bytes
 		if ((addr >= 0x1000) && (addr <= 0x13FF)) {
-
+			// GamePAD I/O 0x1000
+			// bit 7, bit5 and bit 4 = unused
+			// bit 6     = country (1 = JPN, 0 = USA)
+			// bit 0 - 3 = gamepad Data
+			
+			// test
+			return (0x0);
 		}
 
 
@@ -141,6 +138,8 @@ unsigned char* MMU::getVRAM() { return (vram);    }
 void MMU::writeMemory(unsigned short addr, unsigned char data) {
 	unsigned char MPR = mpr[((addr >> 13) & 0xFF)];
 	char debug[20];
+	// Get Only 13 bits !
+	addr = addr & 0x1FFF;
 
 	// HuCard ROM
 	if ((MPR >= 0x00) && (MPR <= 0xF7)) {
@@ -170,19 +169,24 @@ void MMU::writeMemory(unsigned short addr, unsigned char data) {
 
 }
 
+void MMU::writeVRAM(unsigned short addr, unsigned short data) {
+	*(unsigned short*)&vram[addr] = data;
+}
 
 // There are instroctuions (STO, ST1 and ST2) which
 // written direct to the registers of HuC6270
 // besides this we have the writeMemory 
 void MMU::writeIO(unsigned short addr, unsigned char data) {
+
 	// VDC (Video Display Controller)
 	// registers mirrored every 4 bytes
 	if ((addr >= 0x0000) && (addr <= 0x03FF)) {
+
 		// 0xE000 -> VDC Address Select
 		// Only used the bits 0 ~ 4, bits 5 ~ 7 are ignored
 		// 0xE002 -> Low Data register
 		// 0xE003 -> High Data register
-		VDC->writeVDC(addr, data);
+		VDC->writeVDC((addr & 0x3), data);
 
 		return;
 	}
@@ -261,7 +265,7 @@ void MMU::setupVDC(HuC6270 *vdc) {
 void MMU::clearMPR() {
 	std::memset(&mpr,  0x0, 0x7);
 	std::memset(&wram, 0x0, 0x7FFF);
-	std::memset(&vram, 0x0, 0xFA00);
+	std::memset(&vram, 0x0, 0x10000);
 }
 
 void MMU::writeStack(unsigned short addr, unsigned char data) {
@@ -282,3 +286,5 @@ bool MMU::startMemory() {
 	} else 
 		return false;
 }
+
+unsigned short MMU::readVRAM(unsigned short addr) { return (*(unsigned short*)&vram[addr]); }

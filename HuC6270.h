@@ -9,8 +9,13 @@
 #define SCREEN_WIDTH  512
 #define SCREEN_HEIGHT 512
 
-#define SET_FLAG(f, n) (f | n)
-#define CLEAR_FLAG(f, n) (f & ~n)
+#define SET_FLAG(f, n) (f = f | n)
+#define CLEAR_FLAG(f, n) (f = f & ~n)
+
+// Control Register Flags
+#define FLAG_IW 0x1800
+
+
 
 #define BSY 0x64
 #define INT_VRAM_SATB 0x1

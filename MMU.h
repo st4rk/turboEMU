@@ -21,9 +21,13 @@ public:
     unsigned char getTimerStart();
     unsigned char readStack(unsigned short addr);
 
+    unsigned short readVRAM(unsigned short addr);
+    
     void writeStack(unsigned short addr, unsigned char data);
     void writeMemory(unsigned short addr, unsigned char data);
     void writeIO(unsigned short addr, unsigned char data);
+    void writeVRAM(unsigned short addr, unsigned short data);
+
     void setMPRi(unsigned char n, unsigned char data);
     void clearMPR();
     void writeLog(std::string text);

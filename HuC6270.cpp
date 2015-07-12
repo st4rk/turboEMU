@@ -54,19 +54,41 @@ void HuC6270::writeVDC(unsigned short addr, unsigned char data) {
 			switch (vdcStatus) {
 				// MAWR - Memory Address Write Register
 				case 0x0:
-
+					MAWR = ((vdcDataL & 0x00FF) | (vdcDataM << 8));
 				break;
 
 				// MARR - Memory Address Read Register
 				case 0x1:
-
+					MARR = ((vdcDataL & 0x00FF) | (vdcDataM << 8));
 				break;
+
 				// VRR - VRAM Read Register
 				case 0x2:
-
+					std::cout << "error on VRR" << std::endl;
 				break;
+
 				// VWR - VRAM Write Register
 				case 0x3:
+				std::cout << "WRITE ON VRAM" << std::endl;
+					VWR = ((vdcDataL & 0x00FF) | (vdcDataM << 8));
+					memory->writeVRAM(MAWR, VWR);
+					// Auto-increment, flag IW of control register
+					// 0x00 = Increment +1
+					// 0x01 = Increment +32
+					// 0x02 = Increment +64
+					// 0x03 = Increment +128
+					// The register should wrap to 0 after 0xFFFF
+
+					if ((CR & FLAG_IW) == 0x00) {
+						MAWR = ((MAWR + 1) & 0xFFFF);
+					} else if ((CR & FLAG_IW) == 0x01) {
+						MAWR = ((MAWR + 32) & 0xFFFF);
+					} else if ((CR & FLAG_IW) == 0x02) {
+						MAWR = ((MAWR + 64) & 0xFFFF);
+					} else if ((CR & FLAG_IW) == 0x03) {
+						MAWR = ((MAWR + 128) & 0xFFFF);
+					}
+
 
 				break;
 
@@ -93,27 +115,27 @@ void HuC6270::writeVDC(unsigned short addr, unsigned char data) {
 					bit 11-12 = read/write address auto-increment
 					source: http://www.magicengine.com/mkit/doc_hard_vdc.html
 					*/
-					CR = (vdcDataM | (vdcDataL << 8));
+					CR = ((vdcDataL & 0x00FF) | (vdcDataM << 8));
 				break;
 
 				// Raster Counter Register
-				case 0x7:	
-
+				case 0x7: // only bits 0~9 used
+					RCR = (((vdcDataL & 0x00FF) | (vdcDataM << 8)) & 0x3FF);
 				break;
 
 				// Background X Scroll Register
 				case 0x8:
-
+					BXR = (((vdcDataL & 0x00FF) | (vdcDataM << 8)) & 0x3FF);
 				break;
 
 				// Background Y Scroll Register
 				case 0x9:
-
+					BYR = (((vdcDataL & 0x00FF) | (vdcDataM << 8)) & 0x1FF);
 				break;
 
 				// Memory Access Width Register
-				case 0xA:
-
+				case 0xA: 
+					MWR = (((vdcDataL & 0x00FF) | (vdcDataM << 8)) & 0x70);
 				break;
 
 				case 0xB:
@@ -141,23 +163,23 @@ void HuC6270::writeVDC(unsigned short addr, unsigned char data) {
 					4 = SATB DMA auto-transfer enable flag (1 = on)
 				*/
 				case 0xF:
-					DMA.DCR  = (vdcDataM | (vdcDataL << 8));
+					DMA.DCR  = ((vdcDataL & 0x00FF) | (vdcDataM << 8));
 				break;
 
 				// Source Address Register
 				case 0x10:
-					DMA.SOUR = (vdcDataM | (vdcDataL << 8));
+					DMA.SOUR = ((vdcDataL & 0x00FF) | (vdcDataM << 8));
 				break;
 
 				// Destination Address Register
 				case 0x11:
-					DMA.DESR = (vdcDataM | (vdcDataL << 8));
+					DMA.DESR = ((vdcDataL & 0x00FF) | (vdcDataM << 8));
 				break;
 
 				// Block Lenght Register
 				// Set value here start as soon the DMA  Transfer
 				case 0x12:
-					DMA.LENR = (vdcDataM | (vdcDataL << 8));
+					DMA.LENR =  ((vdcDataL & 0x00FF) | (vdcDataM << 8));
 					dmaChannel_VRAM();
 				break;
 
@@ -183,8 +205,12 @@ void HuC6270::writeVDC(unsigned short addr, unsigned char data) {
 
 		default:
 			std::cout << "VDC Write ERROR" << std::endl;
+			printf("Addr: 0x%X | Data: 0x%X\n", addr, data);
 		break;
 	}
+	
+
+
 }
 
 // There are two DMA Channel on PC Engine VDC, one is dedicated
@@ -231,7 +257,9 @@ unsigned char HuC6270::readVDC(unsigned short addr) {
 
 		default:
 			std::cout << "VDC Read ERROR" << std::endl;
+			printf("Addr: 0x%X\n", addr);
 			exit(0);
 		break;
 	}
+
 }
