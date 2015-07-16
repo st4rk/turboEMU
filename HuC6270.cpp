@@ -6,11 +6,20 @@ HuC6270::HuC6270(MMU *ptr) {
    memory = ptr;
    mainWindow   = NULL;
    mainRenderer = NULL;
+   debugFont    = NULL;
 }
 
 HuC6270::~HuC6270() {
+	SDL_DestroyRenderer (mainRenderer);
+	SDL_DestroyWindow   (mainWindow);
+	SDL_DestroyTexture  (debugText);
 
+	mainRenderer = NULL;
+	mainWindow   = NULL;
+	debugText    = NULL;
 
+	TTF_Quit();
+	SDL_Quit();
 }
 
 
@@ -40,17 +49,35 @@ bool HuC6270::initVideo() {
 	SDL_SetRenderDrawColor( mainRenderer, 0x00, 0xFF, 0x00, 0xFF);
 
 
+	if ( TTF_Init() == -1) {
+		std::cout << "Error on TTF Init ! SDL_Error: " << TTF_GetError() << std::endl;
+		return false;
+	}
+
+
+	/* Load System TTF */
+
+	debugFont = TTF_OpenFont("data/8bit16.ttf", 12);
+
+	if (debugFont == NULL) {
+		std::cout << "Error on TTF_OpenFont, SDL_Error:" << TTF_GetError() << std::endl;
+		return false;
+	}
+
 	return true;
 }
 
+bool HuC6270::isSpriteEnable() { return (CR & 0x40); }
 
 void HuC6270::writeVDC(unsigned short addr, unsigned char data) {
+	printf("VDC: 0x%X\n", addr);
 	switch (addr) {
 
 		// VDC Address Select
 		case 0x0000: // only bits 0-4, bits 5-7 are ignored 
 			vdcStatus = (data & 0x1F);
 
+			printf("Status: 0x%X\n", vdcStatus);
 			switch (vdcStatus) {
 				// MAWR - Memory Address Write Register
 				case 0x0:
@@ -62,16 +89,12 @@ void HuC6270::writeVDC(unsigned short addr, unsigned char data) {
 					MARR = ((vdcDataL & 0x00FF) | (vdcDataM << 8));
 				break;
 
-				// VRR - VRAM Read Register
-				case 0x2:
-					std::cout << "error on VRR" << std::endl;
-				break;
-
 				// VWR - VRAM Write Register
-				case 0x3:
-				std::cout << "WRITE ON VRAM" << std::endl;
+				case 0x2:
+					std::cout << "WRITE ON VRAM" << std::endl;
 					VWR = ((vdcDataL & 0x00FF) | (vdcDataM << 8));
 					memory->writeVRAM(MAWR, VWR);
+					
 					// Auto-increment, flag IW of control register
 					// 0x00 = Increment +1
 					// 0x01 = Increment +32
@@ -89,21 +112,21 @@ void HuC6270::writeVDC(unsigned short addr, unsigned char data) {
 						MAWR = ((MAWR + 128) & 0xFFFF);
 					}
 
-
 				break;
+
 
 				// These Registers are reserved
-				case 0x4:
+				case 0x3:
 
 				break;
 
-				case 0x5:
+				case 0x4:
 
 				break;
 				// ---------------------------------
 
 				// Control Register
-				case 0x6:
+				case 0x5:
 					/*
 					bit 0     = Sprite Collision Interrupt 
 					bit 1     = Sprite Overflow Interrupt
@@ -118,38 +141,48 @@ void HuC6270::writeVDC(unsigned short addr, unsigned char data) {
 					CR = ((vdcDataL & 0x00FF) | (vdcDataM << 8));
 				break;
 
+
 				// Raster Counter Register
-				case 0x7: // only bits 0~9 used
+				case 0x6: // only bits 0~9 used
 					RCR = (((vdcDataL & 0x00FF) | (vdcDataM << 8)) & 0x3FF);
 				break;
 
 				// Background X Scroll Register
-				case 0x8:
+				case 0x7:
 					BXR = (((vdcDataL & 0x00FF) | (vdcDataM << 8)) & 0x3FF);
 				break;
 
 				// Background Y Scroll Register
-				case 0x9:
+				case 0x8:
 					BYR = (((vdcDataL & 0x00FF) | (vdcDataM << 8)) & 0x1FF);
 				break;
 
 				// Memory Access Width Register
-				case 0xA: 
+				case 0x9: 
 					MWR = (((vdcDataL & 0x00FF) | (vdcDataM << 8)) & 0x70);
 				break;
 
+				// Horizontal Synchro Register
+				case 0xA:
+
+				break;
+
+				// Horizontal Display Register
 				case 0xB:
 
 				break;
 
+				// Vertical Synchro Register
 				case 0xC:
 
 				break;
 
+				// Vertical Display Register
 				case 0xD:
 
 				break;
 
+				// Vertical Display End Position Regiter
 				case 0xE:
 
 				break;
@@ -183,6 +216,7 @@ void HuC6270::writeVDC(unsigned short addr, unsigned char data) {
 					dmaChannel_VRAM();
 				break;
 
+				// VRAM-SATB (Sprite Attribute Table Block)
 				case 0x13:
 
 				break;
@@ -238,6 +272,8 @@ void HuC6270::dmaChannel_STAB() {
 }
 
 unsigned char HuC6270::readVDC(unsigned short addr) {
+	printf("Read: 0x%X\n", addr);
+	
 	switch (addr) {
 
 		// VDC Status Register
@@ -262,4 +298,72 @@ unsigned char HuC6270::readVDC(unsigned short addr) {
 		break;
 	}
 
+}
+
+// SDL Functions/Stuff
+
+void HuC6270::handleKeyboard() {
+	while ( SDL_PollEvent (&e) != 0) {
+		if (e.type == SDL_QUIT) {
+			exit(0);
+		} else if (e.type == SDL_KEYDOWN) {
+			switch (e.key.keysym.sym) {
+				case SDLK_LEFT:
+
+				break;
+
+				case SDLK_RIGHT:
+
+				break;
+
+				case SDLK_ESCAPE:
+					exit(0);
+				break;
+
+				default:
+
+				break;
+			}
+		}
+	}
+}
+
+void HuC6270::drawText(std::string text, int x, int y) {
+	SDL_Surface* tSurface = TTF_RenderText_Solid (debugFont, text.c_str(), {0, 0, 0});
+
+
+	if (tSurface == NULL) {
+		std::cout << "Unable to render text !" << std::endl;
+		return;
+	}
+
+	if (debugText != NULL) {
+		SDL_DestroyTexture( debugText );
+		debugText = NULL;
+	}
+
+	debugText = SDL_CreateTextureFromSurface ( mainRenderer, tSurface );
+
+
+	if (debugText == NULL) {
+		std::cout << "Unable to create texture from rendered text !" << std::endl;
+		return;
+	}
+
+	textRect.x = x;
+	textRect.y = y;
+	textRect.h = tSurface->h;
+	textRect.w = tSurface->w;
+
+	SDL_FreeSurface (tSurface);
+
+}
+
+void HuC6270::renderScene() {
+	SDL_RenderClear    (mainRenderer);
+	
+	SDL_SetRenderDrawColor( mainRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+
+	SDL_RenderCopy( mainRenderer, debugText, NULL, &textRect );
+	SDL_RenderPresent  (mainRenderer);
 }

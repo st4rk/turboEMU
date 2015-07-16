@@ -61,9 +61,9 @@ public:
    void and_();
    void asl();
    void asl_a();
-   void bbri(char);
+   void bbri(unsigned char);
    void bcc();
-   void bbsi(char);
+   void bbsi(unsigned char);
    void bcs();
    void beq();
    void bit();
@@ -115,7 +115,7 @@ public:
    void ply();
    void rol();
    void rol_a();
-   void rmbi(char);
+   void rmbi(unsigned char);
    void ror();
    void ror_a();
    void rti();
@@ -130,7 +130,7 @@ public:
    void st0();
    void st1();
    void st2();
-   void smbi(char);
+   void smbi(unsigned char);
    void sta();
    void stx();
    void sty();

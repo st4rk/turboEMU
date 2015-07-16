@@ -1,5 +1,5 @@
 TARGET = turboEMU
-LIBS = -lm -lSDL2
+LIBS = -lm -lSDL2 -lSDL2_ttf
 CC = g++ 
 CFLAGS = -std=c++11 -g -Wall 
 

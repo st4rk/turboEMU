@@ -48,6 +48,7 @@ private:
 	unsigned char wram       [0x8000];
     unsigned char HuCardROM  [0x100000];
     unsigned char vram       [0x10000];
+    unsigned char interruptMask;
 
     // CPU can access some registers of HuC6270(VDC) and HuC6260(VCE)
     // So we will use *ptr to solve it =)

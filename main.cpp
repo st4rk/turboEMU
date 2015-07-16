@@ -16,6 +16,7 @@ int main(int argc, char **argv) {
 	CPU.setupROM();
 	CPU.resetCPU();
 
+
 	while (1) {
 		CPU.executeCPU();
 	}

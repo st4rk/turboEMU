@@ -4,9 +4,10 @@
 #include <iostream>
 #include <cstring>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 #include "MMU.h"
 
-#define SCREEN_WIDTH  512
+#define SCREEN_WIDTH  700
 #define SCREEN_HEIGHT 512
 
 #define SET_FLAG(f, n) (f = f | n)
@@ -30,16 +31,17 @@
 	LENR = Block Lenght Register
 */
 
-typedef struct dma {
+struct dma {
 	unsigned short DCR;
 	unsigned short SOUR;
 	unsigned short DESR;
 	unsigned short LENR;
-} dma;
+};
+
+
 
 
 class MMU;
-
 class HuC6270 {
 
 public:
@@ -47,6 +49,7 @@ public:
 	~HuC6270();
 
 	bool initVideo();
+	bool isSpriteEnable();
 
 	void writeVDC(unsigned short addr, unsigned char data);
 	void dmaChannel_VRAM();
@@ -54,8 +57,15 @@ public:
 
 	unsigned char readVDC(unsigned short addr);
 
-private:
+	// SDL Functions
 
+	void handleKeyboard();
+	void renderScene();
+	void drawText (std::string text, int x, int y);
+
+
+private:
+	SDL_Event e;
 	SDL_Window* mainWindow;
 	SDL_Renderer *mainRenderer;
 	MMU *memory;
@@ -99,6 +109,10 @@ private:
 	unsigned char vdcStatus; // and ADDR 
     unsigned char vdcDataL;  
     unsigned char vdcDataM;  
+    TTF_Font     *debugFont;
+    SDL_Texture*  debugText;
+    SDL_Rect      textRect;
+
 
 };
 

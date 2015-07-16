@@ -186,7 +186,7 @@ void HuC6280::asl_a() {
 // This opcode use two addressing mode
 // the first one is a zeroPage, the second is the relative
 // we will uses the addrReg_2 to it
-void HuC6280::bbri(char i) {
+void HuC6280::bbri(unsigned char i) {
 	CLEAR_FLAG(flag, FLAG_T);
 
 	addrReg_2 = memory->readMemory(pc++);
@@ -211,7 +211,7 @@ void HuC6280::bcc() {
 }
 
 // the same of BBRI
-void HuC6280::bbsi(char i) {
+void HuC6280::bbsi(unsigned char i) {
 	CLEAR_FLAG(flag, FLAG_T);
 
 	// Relative
@@ -681,7 +681,7 @@ void HuC6280::rol_a() {
 	if (a & FLAG_SIGN) SET_FLAG(flag, FLAG_SIGN); else CLEAR_FLAG(flag, FLAG_SIGN);	
 }
 
-void HuC6280::rmbi(char i) {
+void HuC6280::rmbi(unsigned char i) {
 	CLEAR_FLAG(flag, FLAG_T);
 
 	memory->writeMemory(addrReg, (memory->readMemory(addrReg) &~i));
@@ -887,7 +887,7 @@ void HuC6280::st2() {
 	memory->writeIO(0x3, memory->readMemory(addrReg));		
 }
 
-void HuC6280::smbi(char i) {
+void HuC6280::smbi(unsigned char i) {
 	CLEAR_FLAG(flag, FLAG_T);
 
 	memory->writeMemory(addrReg, (memory->readMemory(addrReg) | i));

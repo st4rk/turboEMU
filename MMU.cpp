@@ -4,6 +4,7 @@
 
 MMU::MMU() {
 	log = fopen("log.txt", "w");
+
 }
 
 MMU::~MMU() {
@@ -39,7 +40,7 @@ unsigned char MMU::readMemory(unsigned short addr) {
 	addr = addr & 0x1FFF;
 
 	// HuCard ROM
-	if ((MPR >= 0x00) && (MPR <= 0xF7)) {
+	if ((MPR >= 0x00) && (MPR <= 0x7F)) {
 		return HuCardROM[(addr & 0xFFFF)];
 	}
 
@@ -59,7 +60,7 @@ unsigned char MMU::readMemory(unsigned short addr) {
 		// VDC (Video Display Controller)
 		// registers mirrored every 4 bytes
 		if ((addr >= 0x0000) && (addr <= 0x03FF)) {
-			VDC->readVDC((addr & 0x3));
+			VDC->readVDC(addr);
 		}
 
 		// VCE (Video Color Encoder)
@@ -98,7 +99,7 @@ unsigned char MMU::readMemory(unsigned short addr) {
 			// bit 0 - 3 = gamepad Data
 			
 			// test
-			return (0x0);
+			return (0b01000111);
 		}
 
 
@@ -111,7 +112,7 @@ unsigned char MMU::readMemory(unsigned short addr) {
 			// bit 2 TIQD  = enable/disable
 			// bit 3 ~ 7 unused
 			if (addr == 0x1402) 
-				std::cout << "IRQ Mask" << std::endl;
+				return interruptMask;
 
 			// 0x1403 - Interrupt status
 			if (addr == 0x1403)
@@ -125,7 +126,6 @@ unsigned char MMU::readMemory(unsigned short addr) {
 		
 	}
 
-	std::cout << "Invalid MPR  ? Value: " << MPR << std::endl;
 	return 0xFF;
 }
 
@@ -186,7 +186,7 @@ void MMU::writeIO(unsigned short addr, unsigned char data) {
 		// Only used the bits 0 ~ 4, bits 5 ~ 7 are ignored
 		// 0xE002 -> Low Data register
 		// 0xE003 -> High Data register
-		VDC->writeVDC((addr & 0x3), data);
+		VDC->writeVDC(addr, data);
 
 		return;
 	}
@@ -236,8 +236,16 @@ void MMU::writeIO(unsigned short addr, unsigned char data) {
 		// bit 1 IRQ1 = enable/disable
 		// bit 2 timer  = enable/disable
 		// bit 3 ~ 7 unused
-		if (addr == 0x1402) 
-			std::cout << "IRQ Mask" << std::endl;
+
+		if (addr == 0x1402) {
+			interruptMask = data;
+
+			// debug purpose
+			printf("TIMER: %d\n", (data & 0x4));
+			printf("IRQ1:  %d\n", (data & 0x2));
+			printf("IRQ2:  %d\n", (data & 0x1));
+
+		}
 
 		// 0x1403 - timer interrupt ?
 
@@ -266,6 +274,7 @@ void MMU::clearMPR() {
 	std::memset(&mpr,  0x0, 0x7);
 	std::memset(&wram, 0x0, 0x7FFF);
 	std::memset(&vram, 0x0, 0x10000);
+	interruptMask = 0;
 }
 
 void MMU::writeStack(unsigned short addr, unsigned char data) {
