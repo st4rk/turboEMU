@@ -17,7 +17,6 @@
 #define FLAG_IW 0x1800
 
 
-
 #define BSY 0x64
 #define INT_VRAM_SATB 0x1
 #define INT_VRAM_VRMA 0x2

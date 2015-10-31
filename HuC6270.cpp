@@ -70,7 +70,7 @@ bool HuC6270::initVideo() {
 bool HuC6270::isSpriteEnable() { return (CR & 0x40); }
 
 void HuC6270::writeVDC(unsigned short addr, unsigned char data) {
-	printf("VDC: 0x%X\n", addr);
+	printf("Write VDC: 0x%X\n", addr);
 	switch (addr) {
 
 		// VDC Address Select
@@ -272,8 +272,11 @@ void HuC6270::dmaChannel_STAB() {
 }
 
 unsigned char HuC6270::readVDC(unsigned short addr) {
-	printf("Read: 0x%X\n", addr);
-	
+	addr = (addr & 0x3);
+
+	printf("Read VDC: 0x%X\n", addr);
+
+
 	switch (addr) {
 
 		// VDC Status Register
@@ -297,6 +300,7 @@ unsigned char HuC6270::readVDC(unsigned short addr) {
 			exit(0);
 		break;
 	}
+
 
 }
 

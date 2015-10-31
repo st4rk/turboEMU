@@ -29,9 +29,10 @@
 // and how we have 263 scanline, result / 263 and we will have
 // ≃ 114 which is the total of cycles per scanline
 #define MAX_TICKET 114
-
-
 #define TIMER_CLOCK 1024
+
+
+class MMU;
 
 class HuC6280 {
 public:
@@ -41,6 +42,9 @@ public:
    // Stack
    void push(unsigned char data);
    unsigned char pop();
+
+   // Interrupt 
+   void handleInterrupt(unsigned short vec);
 
    // Addressing mode 
    void immediate();

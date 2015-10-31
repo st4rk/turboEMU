@@ -6,8 +6,17 @@
 #include <cstring>
 #include "PCE.h"
 #include "HuC6270.h"
+#include "HuC6280.h"
 
 class HuC6270;
+class HuC6280;
+
+
+/* Interrupt Vectors */
+
+#define INTERRUPT_TIME 0xFFFA
+#define INTERRUPT_IRQ1 0xFFF8
+
 
 class MMU {
 public:
@@ -32,6 +41,7 @@ public:
     void clearMPR();
     void writeLog(std::string text);
     void setupVDC(HuC6270 *vdc);
+    void setupCPU(HuC6280 *cpu);
 
 
     bool startMemory();
@@ -54,7 +64,7 @@ private:
     // So we will use *ptr to solve it =)
 
     HuC6270* VDC;
-
+    HuC6280* CPU;
 	// Only for debug purpose, log system
 	FILE *log;
 	

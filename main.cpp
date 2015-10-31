@@ -10,7 +10,8 @@ int main(int argc, char **argv) {
 	HuC6270 VDC(&mMMU);
 
 	mMMU.setupVDC(&VDC);
-
+	mMMU.setupCPU(&CPU);
+	
 	std::cout << "turbo EMU - Written by St4rk" << std::endl;
 	std::cout << "Loading PCE..." << std::endl;
 	CPU.setupROM();

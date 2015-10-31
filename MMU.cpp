@@ -33,6 +33,7 @@ unsigned char MMU::readMemory(unsigned short addr) {
 	char debug[20];
 
 	// Debug Purpose
+	printf("MPR Num: 0x%X  Addr: 0x%X\n", MPR, addr);
 	sprintf(debug, "MPR Num: 0x%X  Addr: 0x%X\n", MPR, addr);
 	writeLog(debug);
 
@@ -140,7 +141,8 @@ void MMU::writeMemory(unsigned short addr, unsigned char data) {
 	char debug[20];
 	// Get Only 13 bits !
 	addr = addr & 0x1FFF;
-
+	printf("Addr: 0x%X  - Data: 0x%X\n", addr, data);
+	
 	// HuCard ROM
 	if ((MPR >= 0x00) && (MPR <= 0xF7)) {
 		// Only for debug purpose
@@ -178,6 +180,8 @@ void MMU::writeVRAM(unsigned short addr, unsigned short data) {
 // besides this we have the writeMemory 
 void MMU::writeIO(unsigned short addr, unsigned char data) {
 
+	printf("Write I/O Addr: 0x%X   |  Data: 0x%X\n", addr, data);
+
 	// VDC (Video Display Controller)
 	// registers mirrored every 4 bytes
 	if ((addr >= 0x0000) && (addr <= 0x03FF)) {
@@ -209,13 +213,15 @@ void MMU::writeIO(unsigned short addr, unsigned char data) {
 	// Timer 
 	// registers mirrored every 2 bytes
 	if ((addr >= 0x0C00) && (addr <= 0x0FFF)) {
+
 		// 0x0C00 Timer Counter/Value
 		if (addr == 0x0C00)
-			timerStart = data;
+			timerStart  = (data & 0x7F);
 
 		// 0x0C01 Time Enable
 		if (addr == 0x0C01)
 			timerEnable = (addr & 0x1);
+
 	}
 
 	// I/O port 
@@ -238,6 +244,7 @@ void MMU::writeIO(unsigned short addr, unsigned char data) {
 		// bit 3 ~ 7 unused
 
 		if (addr == 0x1402) {
+
 			interruptMask = data;
 
 			// debug purpose
@@ -247,10 +254,10 @@ void MMU::writeIO(unsigned short addr, unsigned char data) {
 
 		}
 
-		// 0x1403 - timer interrupt ?
-
-		if (addr == 0x1403)
-			std::cout << "Timer" << std::endl;
+		// Timer Interrupt
+		if (addr == 0x1403) {
+			CPU->handleInterrupt(INTERRUPT_TIME);
+		}
 
 	}
 }
@@ -263,6 +270,9 @@ void MMU::setMPRi(unsigned char n, unsigned char data) {
 
 void MMU::setupVDC(HuC6270 *vdc) {
 	VDC = vdc;
+}
+void MMU::setupCPU(HuC6280 *cpu) {
+	CPU = cpu;
 }
 
 // It will clear all memory segments
@@ -289,7 +299,12 @@ void MMU::writeLog(std::string text) {
 bool MMU::isTimerEnable() { return timerEnable; }
 
 bool MMU::startMemory() {
-	if (pceLoader.PCE_LoadFile("test.pce")) {
+	std::string gameName;
+
+	std::cout << "File name " << std::endl;
+	std::cin >> gameName;
+
+	if (pceLoader.PCE_LoadFile(gameName)) {
 		std::memcpy(HuCardROM, pceLoader.buffer, pceLoader.size);
 		return true;
 	} else 

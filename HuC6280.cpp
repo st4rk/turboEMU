@@ -55,6 +55,19 @@ unsigned char HuC6280::pop() {
 	return (memory->readStack(sp));
 }
 
+// Called by Interrupt Handle
+void HuC6280::handleInterrupt(unsigned short vec) {
+	t_cycles += 7;
+
+	pc++;
+	push(pc >> 8);
+	push(pc & 0xFF);
+	CLEAR_FLAG(flag, FLAG_BRK);
+	push(flag);
+	CLEAR_FLAG(flag, FLAG_DEC);
+	SET_FLAG(flag, FLAG_INT);
+	pc = ((memory->readMemory(vec)) | (memory->readMemory(vec + 1) << 8));
+}
 
 // These are the addressing mode of HuC6208
 // There are Immediate, Relative, 
@@ -2524,16 +2537,7 @@ void HuC6280::executeCPU() {
 	}	
 
 
-
-	// The HuC6280 has a 7-bit timer.
-	// That is decremented one every 1024 clock cycles
-	// At the end of each tick, we will add timerCycles += t_cycles
-	// and verify if it is greater than or equal 1024, if yes
-	// decrement 1 on the timer and clear timerCycles
-	// http://cgfm2.emuviews.com/txt/pcetech.txt 
-	// 2.2) Timer
-	// TODO: Finish the timer vector
-
+	// Timer
 	if ((memory->isTimerEnable()) && (timer == 0)) {
 		timerCycles = 0;
 		timer = memory->getTimerStart();
@@ -2542,10 +2546,21 @@ void HuC6280::executeCPU() {
 	if ((memory->isTimerEnable())) {
 		timerCycles += t_cycles;
 
-		if (timerCycles > TIMER_CLOCK) {
-			timerCycles -= MAX_TICKET;
+		if (timerCycles >= TIMER_CLOCK) {
+			timer = ((timer - 1) & 0x7F);
+			
+			// Timer underflow, now a interrupt should happen
+			if (timer == 0x7F) {
+				memory->writeIO(0x1403, 0xFF); // Trigger Interrupt
+			}
+
+			// reset timer with the last value written to 0xC000
+			timerCycles = 0;
+			timer = memory->getTimerStart();
 		}
 	}
+
+
 }
 
 
