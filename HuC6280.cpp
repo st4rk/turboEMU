@@ -148,10 +148,10 @@ void HuC6280::adc() {
 	addrReg = memory->readMemory(addrReg);
 	int temp = a + (addrReg) + (flag & FLAG_CARRY);
 
-	if (addrReg > 0xFF) SET_FLAG(flag, FLAG_CARRY);
+	if (addrReg > 0xFF) SET_FLAG(flag, FLAG_CARRY); else CLEAR_FLAG(flag, FLAG_CARRY);
 	if ((~(a ^ addrReg)) & (a^temp) & 0x80) SET_FLAG(flag, FLAG_OVER); else CLEAR_FLAG(flag, FLAG_OVER);
 
-	a = (temp & 0xFF);
+	a = ((temp & 0xFF) + 1);
 
 	if (a) CLEAR_FLAG(flag, FLAG_ZERO); else SET_FLAG(flag, FLAG_ZERO);
 	if (a & FLAG_SIGN) SET_FLAG(flag, FLAG_SIGN); else CLEAR_FLAG(flag, FLAG_SIGN);
@@ -748,7 +748,6 @@ void HuC6280::rts() {
 	CLEAR_FLAG(flag, FLAG_T);
 
 	pc = ((pop()) | (pop() << 8));
-	pc++;
 }
 
 void HuC6280::sax() {

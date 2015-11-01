@@ -91,10 +91,9 @@ void HuC6270::writeVDC(unsigned short addr, unsigned char data) {
 
 				// VWR - VRAM Write Register
 				case 0x2:
-					std::cout << "WRITE ON VRAM" << std::endl;
 					VWR = ((vdcDataL & 0x00FF) | (vdcDataM << 8));
 					memory->writeVRAM(MAWR, VWR);
-					
+
 					// Auto-increment, flag IW of control register
 					// 0x00 = Increment +1
 					// 0x01 = Increment +32
@@ -227,6 +226,10 @@ void HuC6270::writeVDC(unsigned short addr, unsigned char data) {
 			}
 		break;
 
+		case 0x0001:
+			return;
+		break;
+
 		// VDC Data LSB
 		case 0x0002:
 			vdcDataL = data;
@@ -282,6 +285,10 @@ unsigned char HuC6270::readVDC(unsigned short addr) {
 		// VDC Status Register
 		case 0x0000: 
 			return (vdcStatus);
+		break;
+
+		case 0x0001:
+			return 0;
 		break;
 
 		// VDC Data LSB
@@ -370,4 +377,14 @@ void HuC6270::renderScene() {
 
 	SDL_RenderCopy( mainRenderer, debugText, NULL, &textRect );
 	SDL_RenderPresent  (mainRenderer);
+}
+
+void HuC6270::dumpVRAM() {
+	FILE *vram = NULL;
+
+	vram = fopen("vram.bin", "wb");
+
+	fwrite(memory->getVRAM(), sizeof(unsigned char), 0x10000, vram);
+
+	fclose(vram);
 }

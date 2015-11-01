@@ -63,6 +63,10 @@ public:
 	void drawText (std::string text, int x, int y);
 
 
+	// Debug function
+
+	void dumpVRAM();
+
 private:
 	SDL_Event e;
 	SDL_Window* mainWindow;

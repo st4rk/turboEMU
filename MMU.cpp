@@ -28,21 +28,31 @@ MMU::~MMU() {
 // TODO: All Mirror
 
 unsigned char MMU::readMemory(unsigned short addr) {
-	unsigned char MPR = mpr[((addr >> 13) & 0xFF)];
+	unsigned char MPR = mpr[((addr >> 13) & 0x7)];
 
 	char debug[20];
 
+
+
 	// Debug Purpose
-	printf("MPR Num: 0x%X  Addr: 0x%X\n", MPR, addr);
+	//printf("MPR Num: 0x%X  Addr: 0x%X\n", MPR, addr);
 	sprintf(debug, "MPR Num: 0x%X  Addr: 0x%X\n", MPR, addr);
 	writeLog(debug);
+	for (int i = 0; i < 8; i++) {
+		sprintf(debug, "MPR %d Value: %X\n", i, mpr[i]);
+		writeLog(debug);
+	}
 
 	// Get Only 13 bits !
 	addr = addr & 0x1FFF;
+	unsigned int fAddr = 0;
 
 	// HuCard ROM
-	if ((MPR >= 0x00) && (MPR <= 0x7F)) {
-		return HuCardROM[(addr & 0xFFFF)];
+	if ((MPR >= 0x00) && (MPR <= 0xF7)) {
+		fAddr = (addr | (MPR << 13));
+		sprintf(debug, "Addr: 0x%X, MPR: 0x%X, ROM Physical Value: 0x%X\n", addr, MPR, fAddr);
+		writeLog(debug);
+		return HuCardROM[fAddr];
 	}
 
 	// WRAM
@@ -100,7 +110,7 @@ unsigned char MMU::readMemory(unsigned short addr) {
 			// bit 0 - 3 = gamepad Data
 			
 			// test
-			return (0b01000111);
+			return 0xBF;
 		}
 
 
@@ -137,11 +147,11 @@ unsigned char MMU::readStack(unsigned short addr) { return wram[addr]; }
 unsigned char* MMU::getVRAM() { return (vram);    }
 
 void MMU::writeMemory(unsigned short addr, unsigned char data) {
-	unsigned char MPR = mpr[((addr >> 13) & 0xFF)];
+	unsigned char MPR = mpr[((addr >> 13) & 0x7)];
 	char debug[20];
 	// Get Only 13 bits !
 	addr = addr & 0x1FFF;
-	printf("Addr: 0x%X  - Data: 0x%X\n", addr, data);
+	//printf("Addr: 0x%X  - Data: 0x%X\n", addr, data);
 	
 	// HuCard ROM
 	if ((MPR >= 0x00) && (MPR <= 0xF7)) {
@@ -150,7 +160,7 @@ void MMU::writeMemory(unsigned short addr, unsigned char data) {
 		writeLog("Trying write on HuCardROM !\n");
 		sprintf(debug, "Addr: 0x%X  - Data: 0x%X\n", addr, data);
 		writeLog(debug);
-
+		exit(0);
 	}
 
 	// WRAM
@@ -179,8 +189,10 @@ void MMU::writeVRAM(unsigned short addr, unsigned short data) {
 // written direct to the registers of HuC6270
 // besides this we have the writeMemory 
 void MMU::writeIO(unsigned short addr, unsigned char data) {
+	char debug[20];
 
-	printf("Write I/O Addr: 0x%X   |  Data: 0x%X\n", addr, data);
+	sprintf(debug,"Write I/O Addr: 0x%X   |  Data: 0x%X\n", addr, data);
+	writeLog(debug);
 
 	// VDC (Video Display Controller)
 	// registers mirrored every 4 bytes
@@ -190,7 +202,7 @@ void MMU::writeIO(unsigned short addr, unsigned char data) {
 		// Only used the bits 0 ~ 4, bits 5 ~ 7 are ignored
 		// 0xE002 -> Low Data register
 		// 0xE003 -> High Data register
-		VDC->writeVDC(addr, data);
+		VDC->writeVDC((addr & 3), data);
 
 		return;
 	}
