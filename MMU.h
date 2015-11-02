@@ -7,6 +7,7 @@
 #include "PCE.h"
 #include "HuC6270.h"
 #include "HuC6280.h"
+#include "render.h"
 
 class HuC6270;
 class HuC6280;
@@ -42,7 +43,7 @@ public:
     void writeLog(std::string text);
     void setupVDC(HuC6270 *vdc);
     void setupCPU(HuC6280 *cpu);
-
+    void setupRender(render *r);
 
     bool startMemory();
     bool isTimerEnable();
@@ -65,6 +66,7 @@ private:
 
     HuC6270* VDC;
     HuC6280* CPU;
+    render*  mRender;
 	// Only for debug purpose, log system
 	FILE *log;
 	

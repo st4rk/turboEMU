@@ -3,12 +3,7 @@
 
 #include <iostream>
 #include <cstring>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
 #include "MMU.h"
-
-#define SCREEN_WIDTH  700
-#define SCREEN_HEIGHT 512
 
 #define SET_FLAG(f, n) (f = f | n)
 #define CLEAR_FLAG(f, n) (f = f & ~n)
@@ -68,9 +63,7 @@ public:
 	void dumpVRAM();
 
 private:
-	SDL_Event e;
-	SDL_Window* mainWindow;
-	SDL_Renderer *mainRenderer;
+
 	MMU *memory;
 	dma DMA;
 	// there are 20 registers
@@ -112,9 +105,6 @@ private:
 	unsigned char vdcStatus; // and ADDR 
     unsigned char vdcDataL;  
     unsigned char vdcDataM;  
-    TTF_Font     *debugFont;
-    SDL_Texture*  debugText;
-    SDL_Rect      textRect;
 
 
 };

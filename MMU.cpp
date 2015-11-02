@@ -286,6 +286,9 @@ void MMU::setupVDC(HuC6270 *vdc) {
 void MMU::setupCPU(HuC6280 *cpu) {
 	CPU = cpu;
 }
+void MMU::setupRender(render *r) {
+	mRender = r;
+}
 
 // It will clear all memory segments
 // and will clear the memory mapping registers
@@ -304,7 +307,10 @@ void MMU::writeStack(unsigned short addr, unsigned char data) {
 }
 
 void MMU::writeLog(std::string text) {
-	fprintf(log, text.c_str());
+	//fprintf(log, text.c_str());
+	mRender->drawText(text, 100, 100);
+	mRender->renderScene();
+	mRender->handleKeyboard();
 }
 
 
